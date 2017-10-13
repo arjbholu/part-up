@@ -176,10 +176,24 @@ Package.onUse(function(api) {
             'app/partup/document-renderer/document-renderer.js',
 
             // App:partup-updates
+            'app/partup/updates/new-message/newmessage.html',
+            'app/partup/updates/new-message/newmessage.js',
+            'app/partup/updates/new-message/markdown-support/markdown-support.html',
+            'app/partup/updates/new-message/partup-client-file-picker/file-picker.html',
+            'app/partup/updates/new-message/partup-client-file-picker/file-picker.js',
+            'app/partup/updates/new-message/partup-client-file-picker/dropbox-picker/dropbox-picker.html',
+            'app/partup/updates/new-message/partup-client-file-picker/dropbox-picker/dropbox-picker.js',
+            'app/partup/updates/new-message/partup-client-file-picker/drive-picker/drive-picker.html',
+            'app/partup/updates/new-message/partup-client-file-picker/drive-picker/drive-picker.js',
+            'app/partup/updates/new-message/partup-client-file-picker/device-picker/device-picker.html',
+            'app/partup/updates/new-message/partup-client-file-picker/device-picker/device-picker.js',
+            'app/partup/updates/new-message/partup-client-file-picker/file-controller.js',
+
+
             'app/partup/updates/updates.html',
             'app/partup/updates/updates.js',
-            'app/partup/updates/newmessage/newmessage.html',
-            'app/partup/updates/newmessage/newmessage.js',
+            // 'app/partup/updates/newmessage/newmessage.html',
+            // 'app/partup/updates/newmessage/newmessage.js',
             'app/partup/update/update.html',
             'app/partup/update/update.js',
 

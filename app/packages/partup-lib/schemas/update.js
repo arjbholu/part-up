@@ -156,6 +156,14 @@ var DocumentSchema = new SimpleSchema({
     _id: {
         type: String
     },
+    id: {
+        type: String,
+        optional: true
+    },
+    type: {
+        type: String,
+        optional: true
+    },
     mimeType: {
         type: String,
         optional: true

@@ -43,11 +43,12 @@ class _Pluploader {
     }
 
     setMimeFilters(categories) {
-        if (!categories || categories.length < 1) {
-            return;
-        }
         const filters = this.getOption('filters');
-        filters.mime_types = _.map(categories, category => (Partup.helpers.files.toUploadFilter(category)));
+        if (!categories) {
+            filters.mime_types = new Array(Partup.helpers.files.toUploadFilter('all', Partup.helpers.files.extensions.all));
+        } else {
+            filters.mime_types = _.map(categories, category => (Partup.helpers.files.toUploadFilter(category)));
+        }
         this.setOption('filters', filters);
     }
     addMimeFilter(category) {
@@ -82,7 +83,9 @@ class _Pluploader {
 
 // Register any hook that matches the plupload API
 const _registerHooks = (uploader, hooks) => {
-    _.each(Object.keys(hooks), key => uploader.bind(key, hooks[key]));
-}
+    if (hooks) {
+        _.each(Object.keys(hooks), key => uploader.bind(key, hooks[key]));
+    }
+};
 
 Pluploader = _Pluploader;

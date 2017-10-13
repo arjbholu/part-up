@@ -1,0 +1,20 @@
+.pu-newmessage {
+
+    .pu-new-message-input-wrap {
+        position: relative;
+        
+        .markdown-support {
+            display: inline-block;
+            position: absolute;
+            bottom: em(15);
+            right: em(15);
+        }
+    }
+
+    .pu-file-picker-wrap {
+        border: 2px solid $color-border;
+        border-top: 0;
+        border-bottom-left-radius: em(5);
+        border-bottom-right-radius: em(5);
+    }
+}

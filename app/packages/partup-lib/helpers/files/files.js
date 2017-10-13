@@ -85,10 +85,11 @@ Partup.helpers.files = {
         return info.extension;
     },
 
-    getCategory(extension) {
-        if (!extension) {
+    getCategory(file) {
+        if (!file) {
             throw new Meteor.Error(0, 'extension is undefined');
         }
+        const extension = typeof file === 'string' ? file : this.getExtension(file);
         const info = this.info[_.toLower(extension)];
         return info ?
             info.category :
@@ -150,7 +151,7 @@ Partup.helpers.files = {
     toUploadFilter(category, extensions = undefined) {
         return {
             title: category,
-            extensions: extensions || this.extensions[category].join(','),
+            extensions: (Array.isArray(extensions) ? extensions.join(',') : extensions) || this.extensions[category].join(','),
         };
     },
 
@@ -228,8 +229,15 @@ _.each(_filemap, ({ category, icon, data }) => {
  * Expose an array of all extensions
  */
 Partup.helpers.files.extensions.all = _.reduce(Object.keys(Partup.helpers.files.extensions), (result, key) => {
-    return _.concat(result, Partup.helpers.files.extensions[key])
+    return _.concat(result, Partup.helpers.files.extensions[key]);
 }, []);
+
+/**
+ * Expose an array of all categories
+ * */
+Partup.helpers.files.categories.all = _.reduce(Object.keys(Partup.helpers.files.categories), (result, key) => {
+    return _.concat(result, Partup.helpers.files.categories[key]);
+});
 
 // Freeze the props to prevent any modification, e.g. file.extensions[x] = y
 Object.freeze(Partup.helpers.files.categories);

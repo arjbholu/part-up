@@ -22,7 +22,8 @@ Package.onUse(function(api) {
         'iron:router',
         'reactive-dict',
         'reactive-var',
-        'http'
+        'http',
+        'check',
     ]);
 
     api.use([
@@ -65,6 +66,7 @@ Package.onUse(function(api) {
         'schemas/activity.js',
         'schemas/update.js',
         'schemas/contribution.js',
+        'schemas/file.js',
         'schemas/forgotPassword.js',
         'schemas/login.js',
         'schemas/network.js',

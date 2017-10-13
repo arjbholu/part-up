@@ -1,0 +1,39 @@
+<template name="newMessage">
+    {{#autoForm
+        id=form.id
+        schema=form.schema
+        doc=form.doc
+        class="pu-form pu-form-popup pu-newmessage" }}
+        
+        <section class="pu-new-message-input-wrap">
+            {{> afFieldInput 
+                name="text"
+                placeholder=""
+                class="pu-textarea"
+                rows=3
+                autofocus=""
+                data-message-input="" }}
+
+            <div class="markdown-support">
+                {{> markdownSupport }}
+            </div>
+        </section>
+
+        <section class="pu-file-picker-wrap">
+            {{> filePicker controller=fileController }}
+        </section>
+        
+        <footer>
+            <button data-submit>
+                {{#if edit }}
+                    <span>{{_ 'pages-app-partup-updates-editmessage-submit'}}</span>
+                {{ else }}
+                    <span>{{_ 'pages-app-partup-updates-newmessage-submit'}}</span>
+                {{/if }}
+            </button>
+            <button data-dismiss>
+                {{_ 'pages-app-partup-updates-newmessage-close'}}
+            </button>
+        </footer>
+    {{/autoForm}}
+</template>

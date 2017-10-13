@@ -40,7 +40,6 @@ if (Meteor.isClient) {
                 var authUrl = dropboxClient.getAuthenticationUrl(new URL(window.location).origin + "/dropbox/oauth_receiver.html");
                 popupCenter(authUrl, 'dropbox', 800, 600);
             }
-
         }
 
         function popupCenter(url, title, w, h) {
@@ -78,6 +77,7 @@ if (Meteor.isClient) {
             files.forEach(function (file) {
                 uploaded = mediaUploader.uploadedDocuments.get();
                 file._id = new Meteor.Collection.ObjectID()._str; // Uploaded doc needs a new id
+                console.log(file);
                 uploaded.push(file);
                 mediaUploader.uploadedDocuments.set(uploaded);
             }); 

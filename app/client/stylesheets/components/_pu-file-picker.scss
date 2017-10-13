@@ -1,0 +1,113 @@
+
+.pu-file-picker {
+    $left: 25%;
+    $left-min: em(220);
+
+    &-header {
+        position: relative;
+        border-bottom: 1px solid $color-primary-deepdark;
+
+        > button {
+            display: inline-block;
+            background-color: $color-primary;
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: em(9) em(0) em(9) em(5);
+            width: $left;
+            min-width: $left-min;
+            font-size: em(16);
+            border-right: 1px solid $color-primary-deepdark;
+        }
+
+        .pu-file-picker-remaining-wrap {
+            height: em(36);
+            position: absolute;
+            right: em(10);
+            top: 25%;
+
+            > span {
+                color: gray;
+                font-size: 0.8em;
+                display: inline-block;
+
+                > strong {
+                    font-size: 1.1em;
+                    font-weight: bold;
+                }
+            }
+
+        }
+    }   
+
+    &-browse-list {
+        width: $left;
+        min-width: $left-min;
+        padding: em(0);
+        display: inline-block;
+        list-style: none;
+        background-color: $color-primary;
+        border-right: 1px solid $color-primary-deepdark;
+        max-height: em(0);
+        overflow: hidden;
+        vertical-align: top;
+        // transition: max-height .75s linear;
+
+        > li {
+            .pu-file-picker-button {
+                display: block;
+                padding: em(10) em(0) em(10) em(10);
+                color: white;
+
+                > i {
+                    padding: em(5);
+                }
+
+                > span {
+                    display: inline-block;
+                }
+
+                &:hover {
+                    background-color: $color-primary-deepdark;
+                }
+            }
+        }
+
+        &-expanded {
+            max-height: em(500);
+            transition: max-height .5s linear;
+        }
+    }
+
+    &-file-list-wrap {
+        padding: em(7.5);
+        list-style: none;
+        vertical-align: top;
+        display: inline-block;
+        margin-left: -$left-min;
+
+        > ul > li {
+            display: inline-block;
+            padding: em(5);
+        }
+
+        &-reduced {
+            margin-left: 0;
+            transition: margin-left .5s linear;
+        }
+    }
+
+    .drop-area {
+        border: dashed 3px transparent;
+        // box-sizing: border-box;
+        &:hover, &-active {
+            border: dashed 3px #B6B6B6;
+        }
+    }
+
+    .pu-file-picker-file-list-placeholder {
+        text-align: center;
+        display:block;
+        padding: em(15);
+    }
+}

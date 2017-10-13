@@ -6,6 +6,11 @@ let mediaUploader;
 Template.app_partup_updates_newmessage.onCreated(function () {
     var template = this;
 
+    console.log('tpl data: ', this.data);
+    if (this.data instanceof Update) {
+        console.log('we have an update!');
+    }
+
     template.partupId = this.data.partup_id || this.data.partupId;
     var images = this.data._id ? this.data.type_data.images : [];
     var documents = this.data._id && this.data.type_data.documents ? this.data.type_data.documents : [];
@@ -140,6 +145,8 @@ AutoForm.hooks({
 
             insertDoc.documents = mediaUploader.uploadedDocuments.get();
 
+            console.log(insertDoc);
+
             // close popup before call is made, an error notifier
             // will be the feedback when it fails
             Partup.client.popup.close();
@@ -180,6 +187,8 @@ AutoForm.hooks({
             insertDoc.text = parent.mentionsInput.getValue();
 
             insertDoc.documents = parent.uploadedDocuments.get();
+
+            console.log(insertDoc);
 
             // close popup before call is made, an error notifier
             // will be the feedback when it fails

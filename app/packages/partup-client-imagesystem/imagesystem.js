@@ -73,13 +73,15 @@ Template.ImageSystem.onRendered(function() {
 
                 if (response.error) {
                     template.loading.set(false);
-                    return Partup.client.notify.error(TAPi18n.__(response.error.reason), { filename: file.name });
+                    Partup.client.notify.error(TAPi18n.__(response.error.reason), { filename: file.name });
+                    return;
                 }
 
                 // This might not be nessecary, have to look at the server side code.
                 if (!response.fileId) {
                     template.loading.set(false);
-                    return Partup.client.notify.info(TAPi18n.__('upload-error-100'), { filename: file.name });
+                    Partup.client.notify.info(TAPi18n.__('upload-error-100'), { filename: file.name });
+                    return;
                 }
 
                 // Stop the old subscription once the new image is uploaded.
