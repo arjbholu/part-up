@@ -47,71 +47,54 @@ Template.drivePicker.onRendered(function() {
         const settingPromises = [];
 
         if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
-
             _.each(data.docs, file => settingPromises.push(drivePicker.setDefaultPermission(file)));
 
             Promise.all(settingPromises)
                 .then(() => {
-                    _.each(data.docs, (file) => {
-                        let newFile = file;
-                        newFile.bytes = (!isNaN(file.sizeBytes)) ? parseInt(file.sizeBytes) : 0;
-                        newFile.icon = file.iconUrl.toString();
-                        newFile.mimeType = file.mimeType.toString();
-                        newFile.name = file.name.toString();
-
+                    _.each(data.docs, (doc) => {
+                        const file = Files.driveToPartupFile(doc);
                         if (template.controller.canAdd(file)) {
-                            const category = Partup.helpers.files.getCategory(file);
+                            template.controller.uploading.set(true);
 
-                            if (category === 'image') {
-                                newFile.link = `https://docs.google.com/uc?id=${file.id}`;
-                                newFile = _.pick(newFile, 'icon', 'bytes', 'link', 'name', 'mimeType');
-
-                                uploadPromises.push(new Promise((resolve, reject) => {
-                                    template.controller.uploading.set(true);
-                                    Meteor.call('images.insertByUrl', newFile.link, function(error, result) {
+                            const uploadPromise = new Promise((resolve, reject) => {
+                                if (Partup.helpers.files.isImage(file)) {
+                                    Meteor.call('images.insertByUrl', file, function(error, result) {
                                         if (error || !result) {
-                                            reject(error);
+                                            reject(error || 'drivePicker: could not upload image');
                                         } else {
-                                            Meteor.subscribe('images.one', result._id, {
+                                            const imageId = result._id;
+
+                                            template.subscribe('images.one', imageId, {
                                                 onReady() {
-                                                    const image = Images.findOne({ _id: result._id });
+                                                    const image = Images.findOne({ _id: imageId });
                                                     if (image) {
                                                         resolve(image);
+                                                    } else {
+                                                        reject(new Error('drivePicker: can not find image'));
                                                     }
                                                 },
                                             });
                                         }
                                     });
-                                }));
-                            } else {
-                                newFile.link = file.url.toString();
-                                newFile = _.pick(newFile, 'icon', 'bytes', 'link', 'name', 'mimeType');
-                                newFile._id = Random.id(); // new Meteor.Collection.ObjectID()._str;
+                                } else {
+                                    Meteor.call('files.insert', file, function(error, result) {
+                                        if (error || !(result && result._id)) {
+                                            reject(error);
+                                        } else {
+                                            resolve(file);
+                                        }
+                                    });
+                                }
+                            }).then(fileResult => template.controller.addFile(fileResult));
 
-                                uploadPromises.push(new Promise((resolve) => {
-                                    template.controller.uploading.set(true);
-                                    resolve(newFile);
-                                }));
-                            }
+                            uploadPromises.push(uploadPromise);
                         }
-
-                        Promise.all(uploadPromises)
-                            .then((files) => {
-                                _.each(files, (file) => {
-                                    template.controller.addFile(file);
-                                });
-                                template.controller.uploading.set(false);
-                            })
-                            .catch((error) => {
-                                Partup.client.notify.error(TAPi18n.__(error.reason));
-                                template.controller.uploading.set(false);
-                            });
                     });
-                })
-                .catch((error) => {
-                    Partup.client.notify.error(TAPi18n.__(error.reason));
-                    template.controller.uploading.set(false);
-                });
+
+                    Promise.all(uploadPromises)
+                        .then(() => template.controller.uploading.set(false))
+                        .catch(Partup.client.notify.error);
+                }).catch(Partup.client.notify.error);
         }
     }
 
@@ -135,7 +118,7 @@ Template.drivePicker.onRendered(function() {
         }
     }
 
-    function authorize() {
+    function open() {
         const token = window.gapi.auth.getToken();
         if (token) {
             createPicker(token.access_token);
@@ -165,8 +148,8 @@ Template.drivePicker.onRendered(function() {
         });
     }))).then(() => {
         window.gapi.client.load('drive', 'v3', () => {
-            $trigger.off('click', authorize);
-            $trigger.on('click', authorize);
+            $trigger.off('click', open);
+            $trigger.on('click', open);
         });
     });
 });

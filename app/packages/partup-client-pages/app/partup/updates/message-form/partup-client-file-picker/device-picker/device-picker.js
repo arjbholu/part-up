@@ -1,14 +1,14 @@
 Template.devicePicker.onRendered(function() {
     const template = this;
 
-    const $trigger = $('[data-browse-device]');
-    if (!$trigger) {
-        throw new Error('devicePicker: expected to find a html element with the "data-browse-device" attribute');
-    }
-
     this.controller = this.data.controller;
     if (!this.controller) {
         throw new Error('devicePicker: cannot operate without a FileController');
+    }
+
+    const $trigger = $('[data-browse-device]');
+    if (!$trigger) {
+        throw new Error('devicePicker: expected to find a html element with the "data-browse-device" attribute');
     }
 
     const pluploadConfig = {
@@ -43,15 +43,15 @@ Template.devicePicker.onRendered(function() {
                     Partup.client.notify.error(TAPi18n.__('upload-error-100'), { filename: file.name });
                     return;
                 }
+
                 if (Partup.helpers.files.isImage(file)) {
                     template.subscribe('images.one', response.fileId, {
                         onReady() {
                             const image = Images.findOne({ _id: response.fileId });
-                            console.log(image);
                             if (image) {
                                 template.controller.addFile(image);
                             } else {
-                                throw new Error('could not find image');
+                                throw new Error('devicePicker: could not find image');
                             }
                         },
                     });
@@ -60,10 +60,9 @@ Template.devicePicker.onRendered(function() {
                         onReady() {
                             const doc = Files.findOne({ _id: response.fileId });
                             if (doc) {
-                                doc.isPartupFile = true;
                                 template.controller.addFile(doc);
                             } else {
-                                throw new Error('could not find file');
+                                throw new Error('devicePicker: could not find file');
                             }
                         },
                     });

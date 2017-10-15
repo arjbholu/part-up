@@ -8,7 +8,7 @@ Meteor.methods({
     'updates.messages.insert': function(partupId, fields) {
         check(partupId, String);
         console.log(fields);
-        check(fields, Partup.schemas.forms.newMessage);
+        check(fields, Partup.schemas.forms.message);
 
         this.unblock();
 

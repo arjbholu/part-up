@@ -16,29 +16,26 @@ Partup.server.services.files = {
      * @param {String} options._id
      * @param {Object} options.meta
      */
-    upload: function(filename, body, mimetype, options) {
-        var s3 = new AWS.S3({params: {Bucket: process.env.AWS_BUCKET_NAME}});
-        options = options || {};
-        var meta = options.meta || {};
-        var id = options.id || Random.id();
+    upload(fileData, body, options) {
+        const s3 = new AWS.S3({ params: { Bucket: process.env.AWS_BUCKET_NAME } });
+        const extension = path.extname(fileData.name);
+        const basename = path.basename(fileData.name, extension);
+        const id = fileData._id || Random.id();
 
-        var extension = path.extname(filename);
-        var basename = path.basename(filename, extension);
-
-        filename = basename.replace(/[^a-zA-Z0-9 ]/g, '').replace(/ /g, '.') + '-' + id + extension;
-
-        var file = {
+        const guid = `${basename.replace(/[^a-zA-Z0-9]/g, '').replace(/ /g, '.')} - ${id}${extension}`;
+        
+        const file = {
             _id: id,
-            name: filename,
-            type: mimetype,
+            guid,
+            name: fileData.name,
+            type: fileData.type,
             createdAt: new Date(),
-            meta: meta
+            meta: options ? options.meta : {},
+            service: 'partup',
         };
 
-        s3.putObjectSync({Key: 'files/' + filename, Body: body, ContentType: mimetype});
-
+        s3.putObjectSync({ Key: `files/'${file.guid}`, Body: body, ContentType: file.type });
         Files.insert(file);
-
         return file;
     },
 
@@ -47,15 +44,20 @@ Partup.server.services.files = {
      *
      * @param {String} id
      */
-    remove: function(id) {
-        var s3 = new AWS.S3({params: {Bucket: process.env.AWS_BUCKET_NAME}});
-        var file = Files.findOne({_id: id});
-        if (!file) return;
+    remove(id) {
+        console.log(id);
 
-        // Remove from S3
-        s3.deleteObjectSync({Key: 'files/' + file.name});
+        const s3 = new AWS.S3({ params: { Bucket: process.env.AWS_BUCKET_NAME } });
+        const file = Files.findOne({ _id: id });
 
-        // Remove from DB
-        Files.remove(id);
-    }
+        console.log(file);
+
+        if (file) {
+            s3.deleteObjectSync({ Key: `files/${file.guid}` });
+            Files.remove(id);
+            console.log('no error');
+            return true;
+        }
+        return false;
+    },
 };

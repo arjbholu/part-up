@@ -99,6 +99,36 @@ Images.findForUpdate = function(update) {
     return Images.find({_id: {'$in': images}});
 };
 
+Images.getForUpdate = function (update) {
+    return new Promise((resolve, reject) => {
+        let images = [];
+
+        if (update && update.type_data) {
+            let imageIds;
+
+            switch (update.type) {
+                case 'partups_image_changed':
+                    imageIds = [update.type_data.old_image, update.type_data.new_image];
+                    break;
+                case 'partups_message_added':
+                    imageIds = update.type_data.images;
+                    break;
+                default:
+                    break;
+            }
+
+            if (imageIds) {
+                images = Images.find({ _id: { $in: imageIds } });
+                if (!images) {
+                    reject();
+                }
+            }
+        }
+
+        resolve(images);
+    });
+};
+
 /**
  * Find images for the comments in an update
  *

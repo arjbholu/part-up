@@ -19,7 +19,7 @@
                 <li>
                     {{#devicePicker controller=controller }}
                         <a class="pu-file-picker-button" data-browse-device>
-                            <i class="picon-upload"></i><span>{{_ 'filepicker-computer' }}</span>
+                            <i class="picon-upload"></i><span>{{_ 'filepicker-device' }}</span>
                         </a>
                     {{/devicePicker }}
                 </li>
@@ -39,37 +39,36 @@
                 </li>
             </ul>
             <div class="pu-file-picker-file-list-wrap {{#if expanded}}pu-file-picker-file-list-wrap-reduced{{/if}} drop-area {{#unless haveFiles}}drop-area-active{{/unless}}" data-drop-area>
-                {{#if haveFiles }}
-                    <ul >
-                        {{#each images }}
-                            <li>
-                                <figure data-type="image"
-                                    class="pu-thumbnail pu-thumbnail-removable"
-                                    style="background-image:url('{{ getImageUrl . }}')"
-                                    data-remove-upload="{{ . }}"></figure>
-                            </li>
-                        {{/each }}
-                        {{#each documents }}
-                            <li>
-                                <figure data-type="document"
-                                    class="pu-doc-icon pu-thumbnail-removable"
-                                    style="background-image:url('/images/add-media-icons/{{ getSvgIcon . }}');"
-                                    data-remove-upload="{{ . }}"></figure>
-                            </li>
-                        {{/each }}
-                        {{#if uploading }}
-                            <li>
-                                <figure class="pu-icon-loading">
-                                    {{uploadProgress}}
-                                </figure>
-                            </li>
-                        {{/if }}
-                    </ul>
-                {{ else }}
+                <ul >
+                    {{#if uploading }}
+                        <li>
+                            <figure class="pu-icon-loading">
+                                {{> Spinner }}
+                            </figure>
+                        </li>
+                    {{/if }}
+                    {{#each images }}
+                        <li>
+                            <figure data-type="image"
+                                class="pu-thumbnail pu-thumbnail-removable"
+                                style="background-image:url('{{ getImageUrl . }}')"
+                                data-remove-upload="{{ . }}"></figure>
+                        </li>
+                    {{/each }}
+                    {{#each documents }}
+                        <li>
+                            <figure data-type="document"
+                                class="pu-doc-icon pu-thumbnail-removable"
+                                style="background-image:url('/images/add-media-icons/{{ getSvgIcon . }}');"
+                                data-remove-upload="{{ . }}"></figure>
+                        </li>
+                    {{/each }}
+                </ul>
+                {{#unless haveFiles }}
                     {{#if expanded }}
                         <span class="pu-file-picker-file-list-placeholder">You can choose an uploader from the left<br/>or drop a file on this area</span>
                     {{/if }}
-                {{/if }}
+                {{/unless }}
             </div>
         </div>
     </section>

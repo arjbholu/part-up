@@ -206,6 +206,7 @@ Package.onUse(function(api) {
         'methods/services/google_methods.js',
         'methods/services/meurs_methods.js',
         'methods/settings/settings_methods.js',
+        'methods/files/files_methods.js',
         'methods/images/images_methods.js',
         'methods/networks/networks_methods.js',
         'methods/tags/tags_methods.js',

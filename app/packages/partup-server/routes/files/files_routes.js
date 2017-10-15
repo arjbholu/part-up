@@ -21,9 +21,12 @@ Router.route('/files/upload', { where: 'server' }).post(function() {
     response.setHeader('Content-Type', 'application/json');
 
     busboy.on('file', Meteor.bindEnvironment(function(fieldname, file, filename, encoding, mimetype) {
-        const ext = Partup.helpers.files.getExtension({ name: filename, type: mimetype });
-        const category = Partup.helpers.files.getCategory(ext);
+        const fileData = {
+            name: filename,
+            type: mimetype,
+        };
 
+        const category = Partup.helpers.files.getCategory(fileData);
         if (!category) {
             response.statusCode = 400;
             response.end(JSON.stringify({ error: { reason: 'upload-error-unknown_category' } }));
@@ -48,6 +51,7 @@ Router.route('/files/upload', { where: 'server' }).post(function() {
             let body = Buffer.concat(buffers);
 
             // Try to get the fileinfo for the given extension and check if the signatures match.
+            const ext = Partup.helpers.files.getExtension(fileData);
             const fileInfo = Partup.helpers.files.info[ext];
 
             let match = false;
@@ -94,7 +98,7 @@ Router.route('/files/upload', { where: 'server' }).post(function() {
                     file = Partup.server.services.images.upload(filename, body, mimetype);
                     break;
                 default:
-                    file = Partup.server.services.files.upload(filename, body, mimetype);
+                    file = Partup.server.services.files.upload(fileData, body);
                     break;
             }
 

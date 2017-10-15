@@ -4,29 +4,14 @@ Template.filePicker.onCreated(function() {
 });
 
 Template.filePicker.onRendered(function() {
-    const template = this;
-
-    this.limitReached = new ReactiveVar(false, function(oldVal, newVal) {
-        const $expandEl = $('[data-expand-picker]');
-        const disabledClass = 'expand-disabled';
-        if (newVal) {
-            $expandEl.addClass(disabledClass);
-        } else {
-            $expandEl.removeClass(disabledClass);
-        }
-        template.expanded.set(!newVal);
-    });
-
     this.autorun(() => {
-        const controller = template.controller;
-        const imageLimit = controller.images.get().length >= controller.limit.images;
-        const documentLimit = controller.documents.get().length >= controller.limit.documents;
-        template.limitReached.set(imageLimit && documentLimit);
+        const limitReached = this.controller.limitReached.get();
+        this.expanded.set(!limitReached);
     });
 });
 
 Template.filePicker.onDestroyed(function() {
-    this.controller.reset();
+    this.controller.destroy();
     this.expanded.set(false);
 });
 
@@ -49,26 +34,20 @@ Template.filePicker.helpers({
     uploading() {
         return Template.instance().controller.uploading.get();
     },
-    uploadProgress() {
-        return 'UPLOADING!';
-    },
     imagesRemaining() {
-        const controller = Template.instance().controller;
-        return controller.limit.images - controller.images.get().length;
+        return Template.instance().controller.imagesRemaining.get();
     },
     documentsRemaining() {
-        const controller = Template.instance().controller;
-        return controller.limit.documents - controller.documents.get().length;
+        return Template.instance().controller.documentsRemaining.get();
     },
     haveFiles() {
-        const controller = Template.instance().controller;
-        return controller.images.get().length > 0 || controller.documents.get().length > 0;
+        return Template.instance().controller.haveFiles.get();
     },
 });
 
 Template.filePicker.events({
     'click [data-expand-picker]'(event, templateInstance) {
-        if (!templateInstance.limitReached.get()) {
+        if (!templateInstance.controller.limitReached.get()) {
             templateInstance.expanded.set(!templateInstance.expanded.get());
         }
     },

@@ -9,22 +9,29 @@ Meteor.methods({
      *
      * @return {String} imageId
      */
-    'images.insertByUrl': function(url) {
-        check(url, String);
-
+    'images.insertByUrl'(file) {
+        check(file, Partup.schemas.entities.file);
         this.unblock();
 
-        var result = HTTP.get(url, {'npmRequestOptions': {'encoding': null}});
-
-        var filename = Random.id() + '.jpg';
-        var body = new Buffer(result.content, 'binary');
-        var mimetype = 'image/jpeg';
-
-        var image = Partup.server.services.images.upload(filename, body, mimetype);
-
+        const request = HTTP.get(file.link, { npmRequestOptions: { encoding: null } });
+        const fileBody = new Buffer(request.content, 'binary');
+        const image = Partup.server.services.images.upload(file.name, fileBody, file.type, {
+            id: file._id,
+        });
         return {
-            _id: image._id
+            _id: image._id,
         };
-    }
+    },
+    'images.remove'(imageIds) {
+        imageIds = (imageIds instanceof Array) ?
+            imageIds :
+        [imageIds];
+        check(imageIds, String);
+
+        _.each(imageIds, id => Partup.server.services.images.remove(id));
+        return {
+            result: true,
+        };
+    },
 
 });

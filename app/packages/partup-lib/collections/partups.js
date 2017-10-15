@@ -146,6 +146,10 @@ Partup.prototype.hasUpper = function (userId) {
 	return mout.lang.isString(userId) && this.uppers.indexOf(userId) > -1;
 };
 
+Partup.prototype.hasSupporterOrUpper = function(userId) {
+    return this.hasSupporter(userId) || this.hasUpper(userId);
+}
+
 /**
  * Check if given user is a pending partner of this partup
  *

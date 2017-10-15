@@ -1,4 +1,4 @@
-<template name="newMessage">
+<template name="messageForm">
     {{#autoForm
         id=form.id
         schema=form.schema
@@ -25,11 +25,16 @@
         
         <footer>
             <button data-submit>
-                {{#if edit }}
-                    <span>{{_ 'pages-app-partup-updates-editmessage-submit'}}</span>
-                {{ else }}
-                    <span>{{_ 'pages-app-partup-updates-newmessage-submit'}}</span>
-                {{/if }}
+                <span>
+                    {{#if isExistingUpdate }}
+                        {{_ 'pages-app-partup-updates-editmessage-submit'}}
+                    {{ else }}
+                        {{_ 'pages-app-partup-updates-newmessage-submit'}}
+                    {{/if }}
+                    {{#if isSubmitting }}
+                        {{> Spinner }}
+                    {{/if }}
+                </span>
             </button>
             <button data-dismiss>
                 {{_ 'pages-app-partup-updates-newmessage-close'}}

@@ -4,6 +4,10 @@ const FileBaseSchema = new SimpleSchema({
         type: String,
         regEx: SimpleSchema.RegEx.Id,
     },
+    guid: {
+        type: String,
+        optional: true,
+    },
     name: {
         type: String,
     },
@@ -15,23 +19,22 @@ const FileBaseSchema = new SimpleSchema({
 const FileSchema = new SimpleSchema([FileBaseSchema, {
     createdAt: {
         type: Date,
-    },
-    meta: {
-        type: Object, // I have no clue as we don't use this atm..
         optional: true,
+    },
+    bytes: {
+        type: Number,
+    },
+    service: {
+        type: String,
+    },
+    link: {
+        type: String,
     },
 }]);
 
-const FileAttachedSchema = new SimpleSchema([FileBaseSchema, {
-    link: {
-        type: String,
-        optional: true,
-    },
-    isPartupFile: {
-        type: Boolean,
-        optional: true,
-    },
+const FileFormSchema = new SimpleSchema([FileBaseSchema, {
+    
 }]);
 
 Partup.schemas.entities.file = FileSchema;
-Partup.schemas.forms.fileAttached = FileAttachedSchema;
+Partup.schemas.forms.fileAttached = FileFormSchema;
