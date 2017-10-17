@@ -1,5 +1,6 @@
 var gm = Npm.require('gm').subClass({imageMagick: true});
 var path = Npm.require('path');
+import _ from 'lodash';
 
 /**
  @namespace Partup server images service
@@ -65,6 +66,27 @@ Partup.server.services.images = {
         Images.insert(image);
 
         return image;
+    },
+
+    remove(id) {
+        const s3 = new AWS.S3({ params: { Bucket: process.env.AWS_BUCKET_NAME } });
+        const image = Images.findOne(id);
+
+        if (image && image.copies) {
+            const s3Key = `${image._id}-${image.name}`;
+            _.each(Object.keys(image.copies), (key) => {
+                if (key === 'original') {
+                    s3.deleteObjectSync({ Key: `images/${s3Key}` });
+                } else {
+                    s3.deleteObjectSync({ Key: `${key}/images/${s3Key}` });
+                }
+            });
+
+            return {
+                _id: id,
+            };
+        }
+        throw new Meteor.Error(0, `images:remove could not find image with _id: ${id} or the image has no copies: ${image.copies}`);
     },
 
     /**

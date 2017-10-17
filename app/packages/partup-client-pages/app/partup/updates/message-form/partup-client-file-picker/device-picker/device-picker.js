@@ -49,7 +49,7 @@ Template.devicePicker.onRendered(function() {
                         onReady() {
                             const image = Images.findOne({ _id: response.fileId });
                             if (image) {
-                                template.controller.addFile(image);
+                                template.controller.addFilesToCache(image);
                             } else {
                                 throw new Error('devicePicker: could not find image');
                             }
@@ -60,7 +60,7 @@ Template.devicePicker.onRendered(function() {
                         onReady() {
                             const doc = Files.findOne({ _id: response.fileId });
                             if (doc) {
-                                template.controller.addFile(doc);
+                                template.controller.addFilesToCache(doc);
                             } else {
                                 throw new Error('devicePicker: could not find file');
                             }

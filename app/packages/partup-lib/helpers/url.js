@@ -84,15 +84,18 @@ Partup.helpers.url = {
         }
     },
 
-    getFileUrl: function(file) {
+    getFileUrl: function(fileGuid) {
+        const guid = typeof fileGuid === 'string' ?
+            fileGuid :
+        file.guid;
+
         // staging acceptance production aws image url
         return ['https://s3-',
             mout.object.get(Meteor, 'settings.public.aws.region'),
             '.amazonaws.com/',
             mout.object.get(Meteor, 'settings.public.aws.bucket'),
             '/files/',
-            file.name
+            guid,
         ].join('');
-
-    }
+    },
 };

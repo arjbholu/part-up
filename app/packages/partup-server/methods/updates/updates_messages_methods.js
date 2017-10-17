@@ -7,7 +7,6 @@ Meteor.methods({
      */
     'updates.messages.insert': function(partupId, fields) {
         check(partupId, String);
-        console.log(fields);
         check(fields, Partup.schemas.forms.message);
 
         this.unblock();
@@ -47,44 +46,96 @@ Meteor.methods({
      * @param {string} updateId
      * @param {mixed[]} fields
      */
-    'updates.messages.update': function(updateId, fields) {
+    'updates.messages.update': function(updateId, messageData) {
         check(updateId, String);
-        check(fields, Partup.schemas.forms.newMessage);
+        check(messageData, Partup.schemas.forms.message);
 
         this.unblock();
 
-        const upper = Meteor.user();
-        if (!upper) throw new Meteor.Error(401, 'unauthorized');
+        if (Meteor.user()) {
+            try {
+                const message = Updates.findOne({ _id: updateId, upper_id: Meteor.userId() });
+                if (message) {
+                    // If for some reason there are files that have not yet been removed by the controller we still have to do it here.
+                    const { images, documents } = messageData;
+                    const hasUrl = messageData.text.match(/[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/);
 
-        try {
-            const message = Updates.findOne({_id: updateId, upper_id: upper._id});
-            if (message) {
-                let hasUrl = fields.text.match(/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/);
-                hasUrl = hasUrl && hasUrl.length > 0 ? true : false;
-                const hasDocuments = fields.documents && fields.documents.length > 0 ? true : false;
+                    if (message.type_data && message.type_data.images) {
+                        const oldImageIds = _.difference(message.type_data.images, images);
+                        if (oldImageIds.length) {
+                            Meteor.call('images.remove_many', oldImageIds, function (error) {
+                                if (error) {
+                                    throw error;
+                                }
+                            });
+                        }
+                    }
+                    if (message.type_data && message.type_data.documents) {
+                        const oldDocumentIds = _.difference(message.type_data.documents, documents);
+                        if (oldDocumentIds.length) {
+                            Meteor.call('files.remove_many', oldDocumentIds, function (error) {
+                                if (error) {
+                                    throw error;
+                                }
+                            });
+                        }
+                    }
 
-                // delete any removed files
-                const newDocuments = lodash.get(fields, 'documents', []);
-                const removeFiles = lodash.get(message, 'type_data.documents', [])
-                    .filter(({_id}) => !lodash.find(newDocuments, {_id}))
-                    .forEach(({_id}) => Partup.server.services.files.remove(_id));
-
-                Updates.update({_id: message._id}, {$set: {
-                    type_data: {
-                        old_value: message.type_data.new_value,
-                        new_value: fields.text,
-                        images: fields.images,
-                        documents: fields.documents
-                    },
-                    has_documents: hasDocuments,
-                    has_links: hasUrl,
-                    updated_at: new Date()
-                }});
+                    Updates.update({ _id: message._id }, {
+                        $set: {
+                            type_data: {
+                                old_value: message.type_data.new_value,
+                                new_value: messageData.text,
+                                images: messageData.images,
+                                documents: messageData.documents,
+                            },
+                            has_documents: !!documents,
+                            has_links: !!hasUrl,
+                            updated_at: new Date(),
+                        },
+                    });
+                } else {
+                    throw new Meteor.Error(0, `cannot find message with _id ${updateId}`);
+                }
+            } catch (error) {
+                Log.error(error);
+                throw new Meteor.Error(error);
             }
-        } catch (error) {
-            Log.error(error);
-            throw new Meteor.Error(400, 'partup_message_could_not_be_updated');
         }
+
+
+        // const upper = Meteor.user();
+        // if (!upper) throw new Meteor.Error(401, 'unauthorized');
+
+        // try {
+        //     const message = Updates.findOne({_id: updateId, upper_id: upper._id});
+        //     if (message) {
+        //         let hasUrl = fields.text.match(/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/);
+        //         hasUrl = hasUrl && hasUrl.length > 0 ? true : false;
+        //         const hasDocuments = fields.documents && fields.documents.length > 0 ? true : false;
+
+        //         // delete any removed files
+        //         const newDocuments = lodash.get(fields, 'documents', []);
+        //         const removeFiles = lodash.get(message, 'type_data.documents', [])
+        //             .filter(({_id}) => !lodash.find(newDocuments, {_id}))
+        //             .forEach(({_id}) => Partup.server.services.files.remove(_id));
+
+        //         Updates.update({_id: message._id}, {$set: {
+        //             type_data: {
+        //                 old_value: message.type_data.new_value,
+        //                 new_value: fields.text,
+        //                 images: fields.images,
+        //                 documents: fields.documents
+        //             },
+        //             has_documents: hasDocuments,
+        //             has_links: hasUrl,
+        //             updated_at: new Date()
+        //         }});
+        //     }
+        // } catch (error) {
+        //     Log.error(error);
+        //     throw new Meteor.Error(400, 'partup_message_could_not_be_updated');
+        // }
     },
 
     /**

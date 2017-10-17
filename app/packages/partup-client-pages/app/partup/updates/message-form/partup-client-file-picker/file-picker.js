@@ -20,10 +20,10 @@ Template.filePicker.helpers({
         return Template.instance().expanded.get();
     },
     images() {
-        return Template.instance().controller.images.get();
+        return _.filter(Template.instance().controller.files.get(), file => Partup.helpers.files.isImage(file));
     },
     documents() {
-        return Template.instance().controller.documents.get();
+        return _.filter(Template.instance().controller.files.get(), file => !Partup.helpers.files.isImage(file));
     },
     getImageUrl(image) {
         return Partup.helpers.url.getImageUrl(image, '360x360');
@@ -53,6 +53,12 @@ Template.filePicker.events({
     },
     'click [data-remove-upload]'(event, templateInstance) {
         const fileId = $(event.target).data('remove-upload');
-        templateInstance.controller.removeFile(fileId);
+        if (fileId) {
+            templateInstance.controller.removeFileFromCollection(fileId)
+                .then(removedId => templateInstance.controller.removeFilesFromCache(removedId))
+                .catch((error) => { throw error; });
+        } else {
+            Partup.client.notify.error('could not remove file');
+        }
     },
 });

@@ -10,54 +10,28 @@ Template.dropboxPicker.onRendered(function () {
         throw new Error('dropboxPicker: expected to find a html element with the "data-browse-dropbox" attribute');
     }
 
-
     const pickerCallback = (dropboxFiles) => {
         const uploadPromises = [];
 
         _.each(dropboxFiles, (data) => {
-            const file = Files.dropboxToPartupFile(data);
-            
-            if (template.controller.canAdd(file)) {
-                template.controller.uploading.set(true);
+            const file = Partup.helpers.files.transform.dropbox(data);
 
-                const uploadPromise = new Promise((resolve, reject) => {
-                    if (Partup.helpers.files.isImage(file)) {
-                        Meteor.call('images.insertByUrl', file, function(error, result) {
-                            if (error || !(result && result._id)) {
-                                reject(error);
-                            } else {
-                                const imageId = result._id;
+            template.controller.uploading.set(true);
 
-                                template.subscribe('images.one', imageId, {
-                                    onReady() {
-                                        const image = Images.findOne({ _id: imageId });
-                                        if (image) {
-                                            resolve(image);
-                                        } else {
-                                            reject(new Error('dropboxPicker: cannot find image'));
-                                        }
-                                    },
-                                });
-                            }
-                        });
-                    } else {
-                        Meteor.call('files.insert', file, function(error, result) {
-                            if (error || !(result && result._id)) {
-                                reject(error || 'dropboxPicker: files.insert result missing _id');
-                            } else {
-                                resolve(file);
-                            }
-                        });
-                    }
-                }).then((fileResult) => {
-                    template.controller.addFile(fileResult);
-                });
+            const uploadPromise =
+                template.controller.insertFileToCollection(file)
+                    .then(inserted => template.controller.addFilesToCache(inserted))
+                    .catch(console.log);
 
-                uploadPromises.push(uploadPromise);
-            }
+            uploadPromises.push(uploadPromise);
         });
 
-        Promise.all(uploadPromises).then(() => template.controller.uploading.set(false));
+        Promise.all(uploadPromises)
+            .then(() => template.controller.uploading.set(false))
+            .catch((error) => {
+                template.controller.uploading.set(false);
+                Partup.client.notify.error(error);
+            });
     };
 
     const open = () => {

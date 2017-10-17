@@ -50,6 +50,12 @@ Partup.helpers.files = {
      */
     max_file_size: 10485760,
 
+    FILE_SERVICES: {
+        PARTUP: 'partup',
+        DROPBOX: 'dropbox',
+        GOOGLEDRIVE: 'googledrive',
+    },
+
     // #endregion
 
     // #region methods
@@ -72,9 +78,12 @@ Partup.helpers.files = {
             ext = _.toLower(name.substr((name.lastIndexOf('.') + 1), name.length));
         }
 
+        if (!ext && !type) {
+            throw new Meteor.Error(0, 'getExtension:type is undefined');
+        }
         const info = ext ?
-            this.info[ext] :
-            this.info[_.toLower(type)];
+        this.info[ext] :
+        this.info[_.toLower(type)];
 
         if (!info) {
             throw new Meteor.Error(0, 'invalid name and type');
@@ -107,7 +116,7 @@ Partup.helpers.files = {
             throw new Meteor.Error(0, 'file is undefined');
         }
 
-        if (_.includes(this.extensions['image'], this.getExtension(file))) {
+        if (_.includes(this.extensions.image, this.getExtension(file))) {
             return true;
         }
 
@@ -131,6 +140,7 @@ Partup.helpers.files = {
         }
         const ext = this.getExtension(file);
 
+        console.log(file);
         return ext ?
             this.info[ext] ?
                 this.info[ext].icon ?
@@ -238,6 +248,46 @@ Partup.helpers.files.extensions.all = _.reduce(Object.keys(Partup.helpers.files.
 Partup.helpers.files.categories.all = _.reduce(Object.keys(Partup.helpers.files.categories), (result, key) => {
     return _.concat(result, Partup.helpers.files.categories[key]);
 });
+
+if (Meteor.isClient) {
+    Partup.helpers.files.transform = {
+        dropbox(dropboxFile) {
+            const file = {
+                name: dropboxFile.name,
+                type: Partup.helpers.files.info[Partup.helpers.files.getExtension(dropboxFile)].mime,
+                bytes: dropboxFile.bytes,
+                service: Partup.helpers.files.FILE_SERVICES.DROPBOX,
+            };
+            console.log(dropboxFile);
+
+            // If we decide to store images without uploading them ourselves
+            // if (Partup.helpers.files.isImage(file)) {
+            //     file.thumbnailUrl = dropboxFile.thumbnailUrl;
+            // }
+
+            // Depending on implementation, just take dropboxFile.link if we decide not to upload them ourselves and save it inside the Files collection.
+            file.link = Partup.helpers.files.isImage(file) ?
+                `${dropboxFile.link.slice(0, -1)}1` :
+            dropboxFile.link;
+
+            return file;
+        },
+        googledrive(driveFile) {
+            const file = {
+                name: driveFile.name,
+                type: driveFile.mimeType,
+                bytes: (!isNaN(driveFile.sizeBytes) ? parseInt(driveFile.sizeBytes) : 0),
+                service: Partup.helpers.files.FILE_SERVICES.GOOGLEDRIVE,
+            };
+
+            file.link = Partup.helpers.files.isImage(file) ?
+                `https://docs.google.com/uc?id=${driveFile.id}` :
+            driveFile.url.toString();
+
+            return file;
+        },
+    };
+}
 
 // Freeze the props to prevent any modification, e.g. file.extensions[x] = y
 Object.freeze(Partup.helpers.files.categories);

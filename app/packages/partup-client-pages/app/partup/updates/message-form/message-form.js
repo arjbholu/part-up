@@ -24,8 +24,8 @@ Template.messageForm.onCreated(function () {
             images: 4,
             documents: 2,
         },
-        attach_images: true,
         multi_select: '*',
+        categories: undefined,
     });
 
     this.update = this.isExistingUpdate ?
@@ -36,11 +36,19 @@ Template.messageForm.onCreated(function () {
         const { type_data } = this.update;
         const { images, documents } = type_data;
         
-        if ((images && images.length) || (files && files.length)) {
+        if (documents && documents.length) {
             this.subscribe('files.many', this.partupId, documents, {
                 onReady() {
                     Files.getForUpdate(template.update)
-                        .then(fileData => _.each(fileData.fetch(), file => template.fileController.addFile(file)));
+                        .then(fileData => template.fileController.addFilesToCache(fileData.fetch()));
+                },
+            });
+        }
+        if (images && images.length) {
+            this.subscribe('images.many', this.partupId, images, {
+                onReady() {
+                    Images.getForUpdate(template.update)
+                        .then(imageData => template.fileController.addFilesToCache(imageData.fetch()));
                 },
             });
         }
@@ -77,6 +85,23 @@ Template.messageForm.onCreated(function () {
     };
 });
 
+Template.messageForm.onRendered(function () {
+    const template = this;
+
+    // Not handled in events because the user can close the popup and the events won't respond to that.
+    $('[data-dismiss]').on('click', function() {
+        // Make sure we don't remove any existing files when just editing.
+        const { typeData } = template.update;
+        if (typeData) {
+            template.fileController.removeAllFilesBesides(_.concat(typeData.images, typeData.documents));
+        } else {
+            template.fileController.removeAllFiles();
+        }
+        template.destroy();
+        
+    });
+});
+
 Template.messageForm.onDestroyed(function () {
     this.destroy();
 });
@@ -109,6 +134,11 @@ Template.messageForm.helpers({
 
 Template.messageForm.events({
     'click [data-dismiss]'(event, templateInstance) {
+        // Make sure we don't remove any existing files when just editing.
+        const { typeData } = templateInstance.update;
+        if (typeData) {
+            templateInstance.controller.removeAllFilesBesides(_.concat(typeData.images, typeData.documents));
+        }
         templateInstance.destroy();
     },
 });
@@ -140,11 +170,19 @@ AutoForm.hooks({
             messageForm.isSubmitting(true);
             Partup.client.updates.setWaitForUpdate(true);
 
-            const formData = _.assignIn({
+            const formData = _.assignIn(insertDoc, {
                 text: messageForm.mentionsInput.getValue(),
-                images: _.map(messageForm.fileController.images.get(), img => img._id),
-                documents: _.map(messageForm.fileController.documents.get(), file => file._id),
-            }, insertDoc);
+                images: [],
+                documents: [],
+            });
+
+            _.each(messageForm.fileController.files.get(), (file) => {
+                if (Partup.helpers.files.isImage(file)) {
+                    formData.images.push(file._id);
+                } else {
+                    formData.documents.push(file._id);
+                }
+            });
 
             Meteor.call('updates.messages.insert', messageForm.partupId, formData, function(error, result) {
                 Partup.client.updates.setWaitForUpdate(false);
@@ -186,11 +224,19 @@ AutoForm.hooks({
 
             messageForm.isSubmitting(true);
 
-            const formData = _.assignIn({
+            const formData = _.assignIn(insertDoc, {
                 text: messageForm.mentionsInput.getValue(),
-                images: _.map(messageForm.fileController.images.get(), img => img._id),
-                documents: _.map(messageForm.fileController.documents.get(), file => file._id),
-            }, insertDoc);
+                images: [],
+                documents: [],
+            });
+
+            _.each(messageForm.fileController.files.get(), (file) => {
+                if (Partup.helpers.files.isImage(file)) {
+                    formData.images.push(file._id);
+                } else {
+                    formData.documents.push(file._id);
+                }
+            });
 
             Meteor.call('updates.messages.update', messageForm.update._id, formData, function(error) {
                 Partup.client.popup.close();

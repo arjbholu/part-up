@@ -102,8 +102,8 @@ Router.route('/files/upload', { where: 'server' }).post(function() {
                     break;
             }
 
-            // Sadly in order to be backwards compatible the 'file' and 'image' keys are preserved until the old uploader is fully replaced
-            // We now use fileId wherever we use this
+            // We will now always use fileId,
+            // In order to be backwards compatible the 'file' and 'image' keys are preserved until the old uploader is fully replaced
             return response.end(JSON.stringify({ error: false, fileId: file._id, file: file._id, image: file._id }));
         }));
     }));

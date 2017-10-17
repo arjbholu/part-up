@@ -52,7 +52,7 @@
                             <figure data-type="image"
                                 class="pu-thumbnail pu-thumbnail-removable"
                                 style="background-image:url('{{ getImageUrl . }}')"
-                                data-remove-upload="{{ . }}"></figure>
+                                data-remove-upload="{{ _id }}"></figure>
                         </li>
                     {{/each }}
                     {{#each documents }}
@@ -60,7 +60,7 @@
                             <figure data-type="document"
                                 class="pu-doc-icon pu-thumbnail-removable"
                                 style="background-image:url('/images/add-media-icons/{{ getSvgIcon . }}');"
-                                data-remove-upload="{{ . }}"></figure>
+                                data-remove-upload="{{ _id }}"></figure>
                         </li>
                     {{/each }}
                 </ul>

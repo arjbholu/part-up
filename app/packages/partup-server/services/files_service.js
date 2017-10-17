@@ -1,4 +1,4 @@
-var path = Npm.require('path');
+const path = Npm.require('path');
 
 /**
  @namespace Partup server files service
@@ -32,9 +32,10 @@ Partup.server.services.files = {
             createdAt: new Date(),
             meta: options ? options.meta : {},
             service: 'partup',
+            link: Partup.helpers.url.getFileUrl(guid),
         };
 
-        s3.putObjectSync({ Key: `files/'${file.guid}`, Body: body, ContentType: file.type });
+        s3.putObjectSync({ Key: `files/'${guid}`, Body: body, ContentType: file.type });
         Files.insert(file);
         return file;
     },
@@ -45,19 +46,23 @@ Partup.server.services.files = {
      * @param {String} id
      */
     remove(id) {
-        console.log(id);
-
         const s3 = new AWS.S3({ params: { Bucket: process.env.AWS_BUCKET_NAME } });
-        const file = Files.findOne({ _id: id });
-
-        console.log(file);
+        const file = Files.findOne(id);
 
         if (file) {
-            s3.deleteObjectSync({ Key: `files/${file.guid}` });
-            Files.remove(id);
-            console.log('no error');
-            return true;
+            // We need to be able to handle old and new file data
+            const key = file.guid ?
+                file.guid :
+            file.name;
+
+            if (key) {
+                s3.deleteObjectSync({ Key: `files/${key}` });
+                Files.remove(id);
+                return {
+                    _id: id,
+                };
+            }
         }
-        return false;
+        return undefined;
     },
 };

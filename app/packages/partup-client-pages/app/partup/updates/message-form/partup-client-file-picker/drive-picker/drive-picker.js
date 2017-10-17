@@ -1,5 +1,3 @@
-import { Random } from 'meteor/random';
-
 const drivePickerConfig = {
     developerKey: 'AIzaSyAN_WmzOOIcrkLCobAyUqTTQPRtAaD8lkM',
     clientId: '963161275015-ktpmjsjtr570htbmbkuepthb1st8o99o.apps.googleusercontent.com',
@@ -52,49 +50,25 @@ Template.drivePicker.onRendered(function() {
             Promise.all(settingPromises)
                 .then(() => {
                     _.each(data.docs, (doc) => {
-                        const file = Files.driveToPartupFile(doc);
-                        if (template.controller.canAdd(file)) {
-                            template.controller.uploading.set(true);
+                        const file = Partup.helpers.files.transform.googledrive(doc);
 
-                            const uploadPromise = new Promise((resolve, reject) => {
-                                if (Partup.helpers.files.isImage(file)) {
-                                    Meteor.call('images.insertByUrl', file, function(error, result) {
-                                        if (error || !result) {
-                                            reject(error || 'drivePicker: could not upload image');
-                                        } else {
-                                            const imageId = result._id;
+                        template.controller.uploading.set(true);
 
-                                            template.subscribe('images.one', imageId, {
-                                                onReady() {
-                                                    const image = Images.findOne({ _id: imageId });
-                                                    if (image) {
-                                                        resolve(image);
-                                                    } else {
-                                                        reject(new Error('drivePicker: can not find image'));
-                                                    }
-                                                },
-                                            });
-                                        }
-                                    });
-                                } else {
-                                    Meteor.call('files.insert', file, function(error, result) {
-                                        if (error || !(result && result._id)) {
-                                            reject(error);
-                                        } else {
-                                            resolve(file);
-                                        }
-                                    });
-                                }
-                            }).then(fileResult => template.controller.addFile(fileResult));
+                        const uploadPromise =
+                            template.controller.insertFileToCollection(file)
+                                .then(inserted => template.controller.addFilesToCache(inserted))
+                                .catch(error => Partup.client.notify.info(error));
 
-                            uploadPromises.push(uploadPromise);
-                        }
+                        uploadPromises.push(uploadPromise);
                     });
 
                     Promise.all(uploadPromises)
                         .then(() => template.controller.uploading.set(false))
-                        .catch(Partup.client.notify.error);
-                }).catch(Partup.client.notify.error);
+                        .catch((error) => {
+                            template.controller.uploading.set(false);
+                            Partup.client.notify.error(error);
+                        });
+                }).catch(error => Partup.client.notify.error(error));
         }
     }
 

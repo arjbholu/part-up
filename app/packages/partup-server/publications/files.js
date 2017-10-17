@@ -14,15 +14,10 @@ Meteor.publish('files.one', function(fileId) {
 Meteor.publish('files.many', function(partupId, fileIds) {
     check(partupId, String);
     check(fileIds, [String]);
+    this.unblock();
 
-    const userId = Meteor.userId();
-    if (userId) {
-        const partup = Partups.findOne({ _id: partupId });
-
-        if (partup.hasSupporterOrUpper(userId)) {
-            this.unblock();
-            return Files.find({ _id: { $in: fileIds } });
-        }
+    if (Meteor.user()) {
+        return Files.find({ _id: { $in: fileIds } });
     }
     return false;
 });
