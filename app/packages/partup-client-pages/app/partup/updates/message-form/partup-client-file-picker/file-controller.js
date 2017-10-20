@@ -1,39 +1,28 @@
 import _ from 'lodash';
 
+// TODO:
+// [] Set allowed mimes / extensions dynamically
+// [] Disable browse buttons when limit is reached
+// [] Create a uniform way to reject / throw errors
+
 class _FileController {
     constructor(config) {
+        const calculateLimit = (collection, val) => {
+            this.haveFiles.set((val.length || this[collection].get().length));
+            this.limitReached.set((val === 0 && this[collection].get().length === 0));
+        };
+
         this.limit = _.defaults(config.limit, {
             images: 4,
             documents: 2,
         });
+        // Figure out how to deal with categories / extensions
         this.categories = config.categories || Partup.helpers.files.categories.all;
         this.uploading = new ReactiveVar(false);
-        this.limitReached = new ReactiveVar(false);
-        this.imagesRemaining = new ReactiveVar(this.limit.images, (oldVal, newVal) => {
-            if (newVal && this.documentsRemaining.get()) {
-                this.haveFiles.set(true);
-            } else {
-                this.haveFiles.set(false);
-            }
-            if (newVal === 0 && this.documentsRemaining.get() === 0) {
-                this.limitReached.set(true);
-            } else {
-                this.limitReached.set(false);
-            }
-        });
-        this.documentsRemaining = new ReactiveVar(this.limit.documents, (oldVal, newVal) => {
-            if (newVal && this.imagesRemaining.get()) {
-                this.haveFiles.set(true);
-            } else {
-                this.haveFiles.set(false);
-            }
-            if (newVal === 0 && this.imagesRemaining.get() === 0) {
-                this.limitReached.set(true);
-            } else {
-                this.limitReached.set(false);
-            }
-        });
+        this.imagesRemaining = new ReactiveVar(this.limit.images, (oldVal, newVal) => calculateLimit('documentsRemaining', newVal));
+        this.documentsRemaining = new ReactiveVar(this.limit.documents, (oldVal, newVal) => calculateLimit('imagesRemaining', newVal));
         this.haveFiles = new ReactiveVar(false);
+        this.limitReached = new ReactiveVar(false);
         
         this.files = new ReactiveVar([], (oldVal, newVal) => {
             if (newVal) {
@@ -64,13 +53,13 @@ class _FileController {
 
         return new Promise((resolve, reject) => {
             if (file) {
-                if (!this.canAdd(file)) {
+                if (!this.canAdd(file).length) {
                     reject({
                         ...baseError,
-                        reason: 'upload-error-limit_reached',
+                        code: 1,
+                        message: 'cannot add file to collection, canAdd() returned false',
                     });
                 } else {
-                    check(file, Partup.schemas.entities.file);
                     const allowedServices = [
                         Partup.helpers.files.FILE_SERVICES.DROPBOX,
                         Partup.helpers.files.FILE_SERVICES.GOOGLEDRIVE,
@@ -78,7 +67,8 @@ class _FileController {
                     if (!file.service || !_.includes(allowedServices, file.service)) {
                         reject({
                             ...baseError,
-                            reason: `this file has an invalid file service '${file.service}'`,
+                            code: 1,
+                            message: `this file has an invalid file service: '${file.service}', see 'Partup.helpers.files.FILE_SERVICES' for more information`,
                         });
                     } else if (Partup.helpers.files.isImage(file)) {
                         Meteor.call('images.insertByUrl', file, function(error, result) {
@@ -87,7 +77,8 @@ class _FileController {
                             } else if (!result || !result._id) {
                                 reject({
                                     ...baseError,
-                                    reason: 'method files.insert failed, no _id in result',
+                                    code: 1,
+                                    message: "meteor method 'images.insertByUrl' failed, no _id in result",
                                 });
                             } else {
                                 const imageId = result._id;
@@ -101,7 +92,8 @@ class _FileController {
                                         } else {
                                             reject({
                                                 ...baseError,
-                                                reason: 'Could not find image after inserting',
+                                                code: 1,
+                                                message: `cannot find image with _id: ${imageId} after inserting`,
                                             });
                                         }
                                     },
@@ -113,33 +105,19 @@ class _FileController {
                         // resolve(Object.assign({
                             // _id: Random.id(),
                         // }, file))
-
                         Meteor.call('files.insert', file, function(error, result) {
                             if (error) {
                                 reject(error);
                             } else if (!result || !result._id) {
                                 reject({
                                     ...baseError,
-                                    reason: 'method files.insert failed, no _id in result',
+                                    message: "method 'files.insert' failed, no _id in result",
                                 });
                             } else {
                                 // Don't need to fetch dropbox or drive files, all data is already present.
                                 resolve(Object.assign({
                                     _id: result._id,
                                 }, file));
-                                // self._subs[fileId] = Meteor.subscribe('files.one', fileId, {
-                                //     onReady() {
-                                //         const insertedFile = Files.find({ _id: fileId });
-                                //         if (insertedFile) {
-                                //             resolve(insertedFile);
-                                //         } else {
-                                //             reject({
-                                //                 ...baseError,
-                                //                 reason: 'Could not find file after inserting',
-                                //             });
-                                //         }
-                                //     },
-                                // });
                             }
                         });
                     }
@@ -147,7 +125,8 @@ class _FileController {
             } else {
                 reject({
                     ...baseError,
-                    reason: 'input[file] undefined',
+                    code: 1,
+                    message: 'input[file] undefined',
                 });
             }
         });
@@ -156,42 +135,57 @@ class _FileController {
     // This will only work if a file is present in the cache!!!!!
     // It needs to figure out which collection
     removeFileFromCollection(file, collection) {
-        // removing it from the collection means that we also need to remove it when it's uploaded to own servers.
         const baseError = {
             caller: 'fileController:removeFileFromCollection',
         };
 
-        if (file) {
-            // an ID may also be passed instead of a file, we need to extract / find it.
-            const fileId = file._id ?
-                file._id :
-            file;
-
-            let col = collection;
-            if (!collection) {
-                col = Partup.helpers.files.isImage(_.find(this.files.get(), f => f._id === fileId)) ?
-                    'images' :
-                'files';
-            }
-             
-            if (col === 'images' || col === 'files') {
-                return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
+            if (file) {
+                const fileId = file._id || file;
+                check(fileId, String);
+    
+                let col = collection;
+                if (!collection) {
+                    const foundFile = _.find(this.files.get(), ({ _id }) => _id === fileId);
+                    if (foundFile) {
+                        col = Partup.helpers.files.isImage(foundFile) ? 'images' : 'files';
+                    } else {
+                        reject({
+                            ...baseError,
+                            code: 1,
+                            message: `collection: ${collection} not valid and couldn't find file with _id: ${fileId} in the cache`,
+                        });
+                    }
+                }
+                 
+                if (col === 'images' || col === 'files') {
                     Meteor.call(`${col}.remove`, fileId, function(error, result) {
-                        if (result && result._id) {
-                            resolve(result._id);
-                        } else {
+                        if (error) {
+                            reject(error);
+                        } else if (!result || !result._id) {
                             reject({
                                 ...baseError,
-                                reason: `cannot remove file from ${col} with _id: ${fileId}`,
+                                code: 1,
+                                message: `meteor method '${col}.remove' failed, no _id in result`,
                             });
+                        } else {
+                            resolve(result._id);
                         }
                     });
+                } else {
+                    reject({
+                        ...baseError,
+                        code: 1,
+                        message: `collection not supported ${col}`,
+                    });
+                }
+            } else {
+                reject({
+                    ...baseError,
+                    code: 1,
+                    message: 'input[file] undefined',
                 });
             }
-        }
-        return new Error({
-            ...baseError,
-            reason: `collection: ${collection} or fileId ${fileId} undefined`,
         });
     }
 
@@ -201,38 +195,36 @@ class _FileController {
      */
     addFilesToCache(files) {
         if (files) {
-            const fileArray = Array.isArray(files) ?
-                files :
-            [files];
+            const fileArray = Array.isArray(files) ? files : [files];
 
             _.each(fileArray, (file) => {
-                if (this.canAdd(file)) {
+                if (this.canAdd(file).length) {
                     this.files.set(_.concat(this.files.get(), file));
                 } else {
-                    const collection = Partup.helpers.files.isImage(file) ?
-                        'images' :
-                    'files';
+                    // If we can't add a file, it's already uploaded and needs to be removed again.
+                    // This can happen because of race conditions.
+                    // Must pass a collection because the controller does not have the file in cache.
+                    const collection = Partup.helpers.files.isImage(file) ? 'images' : 'files';
                     this.removeFileFromCollection(file._id, collection)
-                        .catch(error => console.log(error));
+                        .catch((error) => { throw error; });
                 }
             });
         } else {
-            throw new Error('fileController: addFile() input undefined');
+            throw new Error('log something for debugging');
         }
     }
 
     /**
-     * @param {String|[String]} fileIds a file _id or an array of file _ids
+     * @param {String|[String]} fileIds a _id or an array of _ids
      * @memberof _FileController
      */
     removeFilesFromCache(fileIds) {
         if (fileIds) {
-            ids = Array.isArray(fileIds) ?
-                fileIds :
-            [fileIds];
-
-            const files = _.filter(this.files.get(), file => !_.includes(fileIds, file._id));
+            const ids = Array.isArray(fileIds) ? fileIds : [fileIds];
+            const files = _.filter(this.files.get(), file => !_.includes(ids, file._id));
             this.files.set(files);
+        } else {
+            throw new Error('log something for debugging');
         }
     }
 
@@ -240,42 +232,76 @@ class _FileController {
         this.removeAllFilesBesides();
     }
 
-    // Warning! this will remove all files where the _id is not in the given array of fileIds
+    /**
+     * @param {[String]} [fileIds] the files to exclude when removing the files remaining in the cache.
+     * @memberof _FileController
+     */
     removeAllFilesBesides(fileIds = []) {
         const filesToRemove = _.filter(this.files.get(), file => _.includes(fileIds, file._id));
 
         _.each(filesToRemove, (file) => {
             this.removeFileFromCollection(file._id)
-                .then(removed => this.removeFilesFromCache(removed))
-                .catch(error => console.error(error));
+                .then(id => this.removeFilesFromCache(id))
+                .catch((error) => { throw error });
         });
     }
 
-    canAdd(file) {
-        return Partup.helpers.files.isImage(file) ?
-            this.imagesRemaining.get() > 0 :
-            this.documentsRemaining.get() > 0;
+    /**
+     * Checks if there's still room for more files according to the set limit
+     *
+     * @param {File} file
+     * @returns {Boolean}
+     * @memberof _FileController
+     */
+    canAdd(files, callback) {
+        const fileArray = Array.isArray(files) ? files : [files];
+        let imagesRemaining = this.imagesRemaining.get();
+        let documentsRemaining = this.documentsRemaining.get();
+
+        const filesThatCanBeAdded = _.filter(fileArray, (file) => {
+            if (Partup.helpers.files.isImage(file)) {
+                if (imagesRemaining) {
+                    --imagesRemaining;
+                    return true;
+                } else if (callback) {
+                    callback(file);
+                }
+            } else if (documentsRemaining) {
+                --documentsRemaining;
+                return true;
+            } else if (callback) {
+                callback(file);
+            }
+        });
+
+        console.log(filesThatCanBeAdded);
+
+        return filesThatCanBeAdded;
+
+        // return Partup.helpers.files.isImage(file) ? this.imagesRemaining.get() > 0 : this.documentsRemaining.get() > 0;
     }
+
     clearFileCache() {
         this.files.set([]);
     }
+
     clearAllSubscribtions() {
         _.each(this._subs, sub => sub.stop());
-        
+
         // TODO: make proper implementation to delete all subs
         while (this._subs && this._subs.length) {
             this._subs.pop();
         }
     }
+
     reset() {
         this.clearFileCache();
         this.clearAllSubscribtions();
         this.uploading.set(false);
     }
+
     destroy() {
-        this.clearFileCache();
-        this.clearAllSubscribtions();
-        // When subscriptions are managed here we can use this to clean up.
+        this.reset();
     }
 }
 

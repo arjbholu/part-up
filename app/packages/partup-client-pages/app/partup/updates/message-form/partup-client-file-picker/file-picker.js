@@ -20,10 +20,12 @@ Template.filePicker.helpers({
         return Template.instance().expanded.get();
     },
     images() {
-        return _.filter(Template.instance().controller.files.get(), file => Partup.helpers.files.isImage(file));
+        return _.filter(Template.instance().controller.files.get(),
+            file => Partup.helpers.files.isImage(file));
     },
     documents() {
-        return _.filter(Template.instance().controller.files.get(), file => !Partup.helpers.files.isImage(file));
+        return _.filter(Template.instance().controller.files.get(),
+            file => !Partup.helpers.files.isImage(file));
     },
     getImageUrl(image) {
         return Partup.helpers.url.getImageUrl(image, '360x360');
@@ -56,9 +58,11 @@ Template.filePicker.events({
         if (fileId) {
             templateInstance.controller.removeFileFromCollection(fileId)
                 .then(removedId => templateInstance.controller.removeFilesFromCache(removedId))
-                .catch((error) => { throw error; });
+                .catch((error) => {
+                    Partup.client.notify.error(TAPi18n.__(`pu-error-files-${error.code}`));
+                });
         } else {
-            Partup.client.notify.error('could not remove file');
+            Partup.client.notify.error(TAPi18n.__(`pu-error-files-${3412351532}`));
         }
     },
 });

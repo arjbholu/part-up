@@ -1,5 +1,8 @@
+import _ from 'lodash';
+
 Template.dropboxPicker.onRendered(function () {
     const template = this;
+
     this.controller = this.data.controller;
     if (!this.controller) {
         throw new Error('dropboxPicker: cannot operate without a FileController');
@@ -12,26 +15,25 @@ Template.dropboxPicker.onRendered(function () {
 
     const pickerCallback = (dropboxFiles) => {
         const uploadPromises = [];
+        template.controller.uploading.set(true);
 
-        _.each(dropboxFiles, (data) => {
-            const file = Partup.helpers.files.transform.dropbox(data);
+        const transformedFiles = _.map(dropboxFiles, Partup.helpers.files.transform.dropbox);
+        const files = this.controller.canAdd(transformedFiles, (removedFile) => {
+            Partup.client.notify.info(`Removed ${removedFile.name} because the limit is reached`);
+        });
 
-            template.controller.uploading.set(true);
-
+        _.each(files, (file) => {
             const uploadPromise =
                 template.controller.insertFileToCollection(file)
                     .then(inserted => template.controller.addFilesToCache(inserted))
-                    .catch(console.log);
+                    .catch((error) => { throw error; });
 
             uploadPromises.push(uploadPromise);
         });
 
         Promise.all(uploadPromises)
             .then(() => template.controller.uploading.set(false))
-            .catch((error) => {
-                template.controller.uploading.set(false);
-                Partup.client.notify.error(error);
-            });
+            .catch((error) => { throw error; });
     };
 
     const open = () => {

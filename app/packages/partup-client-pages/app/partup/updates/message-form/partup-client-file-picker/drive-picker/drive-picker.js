@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 const drivePickerConfig = {
     developerKey: 'AIzaSyAN_WmzOOIcrkLCobAyUqTTQPRtAaD8lkM',
     clientId: '963161275015-ktpmjsjtr570htbmbkuepthb1st8o99o.apps.googleusercontent.com',
@@ -29,15 +31,15 @@ drivePicker.setDefaultPermission = (file) => {
 Template.drivePicker.onRendered(function() {
     const template = this;
     let accessToken;
+    
+    this.controller = this.data.controller;
+    if (!this.controller) {
+        throw new Error('drivePicker: cannot operate without a FileController');
+    }
 
     const $trigger = $('[data-browse-drive]');
     if (!$trigger) {
         throw new Error('drivePicker: expected to find a html element with the "data-browse-drive" attribute');
-    }
-
-    this.controller = this.data.controller;
-    if (!this.controller) {
-        throw new Error('drivePicker: cannot operate without a FileController');
     }
 
     function pickerCallback(data) {
@@ -45,30 +47,34 @@ Template.drivePicker.onRendered(function() {
         const settingPromises = [];
 
         if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+
+            // Files first need to be transformed in order for canAdd to work.
+            const transformedFiles = _.map(data.docs, Partup.helpers.files.transform.googledrive);
+            const files = template.controller.canAdd(transformedFiles, (removedFile) => {
+                Partup.client.notify.info(`Removed ${removedFile.name} because the limit is reached`);
+                _.remove(data.docs, d => d.name === removedFile.name);
+            });
+            
+            // We need the original docs to set permissions for the ids.
             _.each(data.docs, file => settingPromises.push(drivePicker.setDefaultPermission(file)));
 
             Promise.all(settingPromises)
                 .then(() => {
-                    _.each(data.docs, (doc) => {
-                        const file = Partup.helpers.files.transform.googledrive(doc);
-
-                        template.controller.uploading.set(true);
-
+                    template.controller.uploading.set(true);
+                    
+                    _.each(files, (file) => {
                         const uploadPromise =
                             template.controller.insertFileToCollection(file)
                                 .then(inserted => template.controller.addFilesToCache(inserted))
-                                .catch(error => Partup.client.notify.info(error));
+                                .catch((error) => { throw error; });
 
                         uploadPromises.push(uploadPromise);
                     });
 
                     Promise.all(uploadPromises)
                         .then(() => template.controller.uploading.set(false))
-                        .catch((error) => {
-                            template.controller.uploading.set(false);
-                            Partup.client.notify.error(error);
-                        });
-                }).catch(error => Partup.client.notify.error(error));
+                        .catch((error) => { throw error; });
+                }).catch((error) => { throw error; });
         }
     }
 

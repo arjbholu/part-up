@@ -3,13 +3,12 @@
 
         <div class="pu-sub-timelineline" style="{{# with containerHeightVar.get }}height: {{ . }}px;{{/ with }}"></div>
 
-        <!-- new message popup -->
+        <!-- messageForm popup -->
         {{#if partupIsPopupActive 'new-message' }}
             {{#contentFor "PopupTitle"}}
                 {{_ 'pages-app-partup-updates-newmessage-title'}}
             {{/contentFor}}
             {{#contentFor region="PopupContent" data=.}}
-                <!-- {{> app_partup_updates_newmessage }} -->
                 {{> messageForm }}
             {{/contentFor}}
         {{/if}}

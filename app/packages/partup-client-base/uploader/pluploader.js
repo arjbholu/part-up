@@ -45,7 +45,7 @@ class _Pluploader {
     setMimeFilters(categories) {
         const filters = this.getOption('filters');
         if (!categories) {
-            filters.mime_types = new Array(Partup.helpers.files.toUploadFilter('all', Partup.helpers.files.extensions.all));
+            filters.mime_types = [Partup.helpers.files.toUploadFilter('all', Partup.helpers.files.extensions.all)];
         } else {
             filters.mime_types = _.map(categories, category => (Partup.helpers.files.toUploadFilter(category)));
         }

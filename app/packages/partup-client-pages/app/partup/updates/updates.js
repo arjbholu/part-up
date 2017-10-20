@@ -341,9 +341,6 @@ Template.app_partup_updates.helpers({
     updatesLoadingMore: function() {
         return Template.instance().updates.infinite_scroll_loading.get();
     },
-    console(obj) {
-        console.log(obj);
-    },
 });
 
 /**

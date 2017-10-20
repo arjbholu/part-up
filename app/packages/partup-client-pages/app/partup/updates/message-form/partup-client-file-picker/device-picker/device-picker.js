@@ -18,10 +18,24 @@ Template.devicePicker.onRendered(function() {
         types: template.controller.categories,
         hooks: {
             FilesAdded(uploader, files) {
+                let imagesRemaining = template.controller.imagesRemaining.get();
+                let documentsRemaining = template.controller.documentsRemaining.get();
+
                 _.each(files, (file) => {
-                    if (!template.controller.canAdd(file)) {
-                        Partup.client.notify.info(TAPi18n.__('upload-info-limit-reached', { filename: file.name }));
-                        uploader.removeFile(file);
+                    if (Partup.helpers.files.isImage(file)) {
+                        if (!imagesRemaining) {
+                            Partup.client.notify.info(TAPi18n.__('upload-info-limit-reached', { filename: file.name }));
+                            uploader.removeFile(file);
+                        } else {
+                            --imagesRemaining;
+                        }
+                    } else {
+                        if (!documentsRemaining) {
+                            Partup.client.notify.info(TAPi18n.__('upload-info-limit-reached', { filename: file.name }));
+                            uploader.removeFile(file);
+                        } else {
+                            --documentsRemaining;
+                        }
                     }
                 });
                 if (uploader.files.length > 0) {
@@ -70,7 +84,7 @@ Template.devicePicker.onRendered(function() {
             },
             UploadComplete(uploader) {
                 template.controller.uploading.set(false);
-                while (uploader.files > 0) {
+                while (uploader.files.length) {
                     uploader.files.pop();
                 }
             },
@@ -83,9 +97,10 @@ Template.devicePicker.onRendered(function() {
     }
 
     this.uploader = new Pluploader(pluploadConfig);
-    this.uploader.init();
+    this.initTimeout = setTimeout(() => this.uploader.init(), 2000);
 });
 
 Template.devicePicker.onDestroyed(function() {
+    clearTimeout(this.initTimeout);
     this.uploader.destroy();
 });

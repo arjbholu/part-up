@@ -3,7 +3,7 @@ import _ from 'lodash';
 /**
  * Partup messageForm template, can create and edit messages
  *
- * Takes the following params:
+ * Requires one of the following params:
  * @param {String} partupId[optional] partupId
  * @param {Object} update[optional] dataContext
  *
@@ -40,7 +40,8 @@ Template.messageForm.onCreated(function () {
             this.subscribe('files.many', this.partupId, documents, {
                 onReady() {
                     Files.getForUpdate(template.update)
-                        .then(fileData => template.fileController.addFilesToCache(fileData.fetch()));
+                        .then(fileData => template.fileController.addFilesToCache(fileData.fetch()))
+                        .catch(error => TAPi18n.__(`pu-error-files-${error.code}`));
                 },
             });
         }
@@ -48,7 +49,8 @@ Template.messageForm.onCreated(function () {
             this.subscribe('images.many', this.partupId, images, {
                 onReady() {
                     Images.getForUpdate(template.update)
-                        .then(imageData => template.fileController.addFilesToCache(imageData.fetch()));
+                        .then(imageData => template.fileController.addFilesToCache(imageData.fetch()))
+                        .catch(error => TAPi18n.__(`pu-error-files-${error.code}`));
                 },
             });
         }
@@ -86,20 +88,22 @@ Template.messageForm.onCreated(function () {
 });
 
 Template.messageForm.onRendered(function () {
-    const template = this;
 
-    // Not handled in events because the user can close the popup and the events won't respond to that.
-    $('[data-dismiss]').on('click', function() {
-        // Make sure we don't remove any existing files when just editing.
+    const removeFiles = () => {
         const { typeData } = template.update;
+        
         if (typeData) {
             template.fileController.removeAllFilesBesides(_.concat(typeData.images, typeData.documents));
         } else {
-            template.fileController.removeAllFiles();
+            template.fileController.removeAllFilesBesides();
         }
-        template.destroy();
-        
-    });
+
+        $('[data-dismiss]').on('click', removeFiles);
+        this.destroy();
+    };
+    
+    // Handled here because this template can't access the popup's close button via the ({events}).
+    $('[data-dismiss]').on('click', removeFiles);
 });
 
 Template.messageForm.onDestroyed(function () {
@@ -111,13 +115,18 @@ Template.messageForm.helpers({
         const template = Template.instance();
         return {
             id() {
-                return template.update.message ? 'editMessageForm' : 'newMessageForm';
+                return template.update._id ? 'editMessageForm' : 'newMessageForm';
             },
             schema() {
                 return Partup.schemas.forms.message;
             },
             doc() {
-                return template.update;
+                return template.update._id ? {
+                    text: template.update.type_data.new_value,
+                    images: template.update.type_data.images || [],
+                    documents: template.update.type_data.documents || [],
+                } :
+                undefined;
             },
         };
     },
@@ -132,17 +141,6 @@ Template.messageForm.helpers({
     },
 });
 
-Template.messageForm.events({
-    'click [data-dismiss]'(event, templateInstance) {
-        // Make sure we don't remove any existing files when just editing.
-        const { typeData } = templateInstance.update;
-        if (typeData) {
-            templateInstance.controller.removeAllFilesBesides(_.concat(typeData.images, typeData.documents));
-        }
-        templateInstance.destroy();
-    },
-});
-
 /**
  * Runs when an 'afFieldInput' get's rendered.
  */
@@ -151,16 +149,21 @@ Template.afFieldInput.onRendered(function () {
     if (this.data.hasOwnProperty('data-message-input')) {
         const messageForm = this.parent();
         const input = messageForm.find('[data-message-input]');
-        
+
+        if (messageForm.mentionsInput) {
+            messageForm.mentionsInput.destroy();
+        }
+
         messageForm.mentionsInput = Partup.client.forms.MentionsInput(input, {
             partupId: messageForm.partupId,
             autoFocus: true,
             autoAjustHeight: true,
-            prefillValue: messageForm.update.message,
+            prefillValue: messageForm.data._id ? messageForm.update.type_data.new_value : undefined,
         });
     }
     return false;
 });
+
 
 AutoForm.hooks({
     newMessageForm: {

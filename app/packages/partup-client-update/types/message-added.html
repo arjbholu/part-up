@@ -1,12 +1,11 @@
 <template name="update_partups_message_added">
-    <!-- edit message popup -->
+    <!-- messageForm popup -->
     {{#if partupEquals upper_id currentUserId }}
         {{#if partupIsPopupActive editMessagePopupId }}
             {{#contentFor "PopupTitle"}}
                 {{_ 'update-editmessage-title'}}
             {{/contentFor}}
-            {{#contentFor region="PopupContent" data=.}}
-                <!-- {{> app_partup_updates_newmessage }} -->
+            {{#contentFor region="PopupContent" data=. }}
                 {{> messageForm }}
             {{/contentFor}}
         {{/if}}
