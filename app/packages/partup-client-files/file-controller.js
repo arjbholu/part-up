@@ -8,7 +8,6 @@ import _ from 'lodash';
 class _FileController {
     constructor(config) {
         const calculateLimit = (collection, val) => {
-            this.haveFiles.set((val.length || this[collection].get().length));
             this.limitReached.set((val === 0 && this[collection].get().length === 0));
         };
 
@@ -25,6 +24,7 @@ class _FileController {
         this.limitReached = new ReactiveVar(false);
         
         this.files = new ReactiveVar([], (oldVal, newVal) => {
+            this.haveFiles.set(newVal && newVal.length > 0);
             if (newVal) {
                 this.imagesRemaining.set(
                     this.limit.images - _.filter(newVal, file => Partup.helpers.files.isImage(file)).length,

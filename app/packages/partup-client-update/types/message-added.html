@@ -19,7 +19,11 @@
             {{/ if}}
 
             {{# if type_data.documents }}
-                {{> DocumentRenderer documents=type_data.documents updateId=_id}}
+                {{#if areDocumentIds type_data.documents }}
+                    {{> documentRenderer documents=type_data.documents updateId=_id }}
+                {{ else }}
+                    {{> DocumentRenderer documents=type_data.documents updateId=_id}}
+                {{/if }}
             {{/ if}}
 
             {{#if partupEquals upper_id currentUserId }}

@@ -19,7 +19,8 @@ Package.onUse(function(api) {
         'reactive-var',
         'aldeed:autoform',
         'yogiben:autoform-tags',
-        'http'
+        'http',
+        'partup-client-files',
     ], 'client');
 
     var clientFiles = {
@@ -176,26 +177,13 @@ Package.onUse(function(api) {
             'app/partup/document-renderer/document-renderer.js',
 
             // App:partup-updates
+            'app/partup/updates/updates.html',
+            'app/partup/updates/updates.js',
+            'app/partup/update/update.html',
+            'app/partup/update/update.js',
             'app/partup/updates/message-form/message-form.html',
             'app/partup/updates/message-form/message-form.js',
             'app/partup/updates/message-form/markdown-support/markdown-support.html',
-            'app/partup/updates/message-form/partup-client-file-picker/file-picker.html',
-            'app/partup/updates/message-form/partup-client-file-picker/file-picker.js',
-            'app/partup/updates/message-form/partup-client-file-picker/dropbox-picker/dropbox-picker.html',
-            'app/partup/updates/message-form/partup-client-file-picker/dropbox-picker/dropbox-picker.js',
-            'app/partup/updates/message-form/partup-client-file-picker/drive-picker/drive-picker.html',
-            'app/partup/updates/message-form/partup-client-file-picker/drive-picker/drive-picker.js',
-            'app/partup/updates/message-form/partup-client-file-picker/device-picker/device-picker.html',
-            'app/partup/updates/message-form/partup-client-file-picker/device-picker/device-picker.js',
-            'app/partup/updates/message-form/partup-client-file-picker/file-controller.js',
-
-
-            'app/partup/updates/updates.html',
-            'app/partup/updates/updates.js',
-            // 'app/partup/updates/newmessage/newmessage.html',
-            // 'app/partup/updates/newmessage/newmessage.js',
-            'app/partup/update/update.html',
-            'app/partup/update/update.js',
 
             // App:partup-activities
             'app/partup/activities/activities.html',

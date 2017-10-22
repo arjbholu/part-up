@@ -1884,5 +1884,9 @@
   "widgetcommentfield-comment-systemmessage-show": "Show system messages",
   "widgetcommentfield-comment-totalcomments": "__count__ comment",
   "widgetcommentfield-comment-totalcomments_plural": "__count__ comments",
-  "widgetcommentfield-comment-viewall-button": "View all %s comments"
+  "widgetcommentfield-comment-viewall-button": "View all %s comments",
+  "filepicker-add-via": "Add file via",
+  "filepicker-device": "device",
+  "filepicker-dropbox": "dropbox",
+  "filepicker-googledrive": "google drive"
 }

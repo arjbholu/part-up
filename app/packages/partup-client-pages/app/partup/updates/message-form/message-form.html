@@ -24,21 +24,27 @@
         </section>
         
         <footer>
-            <button data-submit>
-                <span>
-                    {{#if isExistingUpdate }}
-                        {{_ 'pages-app-partup-updates-editmessage-submit'}}
-                    {{ else }}
-                        {{_ 'pages-app-partup-updates-newmessage-submit'}}
-                    {{/if }}
-                    {{#if isSubmitting }}
-                        {{> Spinner }}
-                    {{/if }}
-                </span>
-            </button>
-            <button data-dismiss>
-                {{_ 'pages-app-partup-updates-newmessage-close'}}
-            </button>
+            <ul class="pu-list pu-list-right pu-list-horizontal pu-list-buttons">
+                <li>
+                    <button class="pu-button pu-button-text pu-button-text-subtle" data-dismiss>
+                        {{_ 'pages-app-partup-updates-newmessage-close'}}
+                    </button>
+                </li>
+                <li>
+                    <button class="pu-button {{#if isSubmitting}}disabled{{/if }}" data-submit>
+                        <span>
+                            {{#if isExistingUpdate }}
+                                {{_ 'pages-app-partup-updates-editmessage-submit'}}
+                            {{ else }}
+                                {{_ 'pages-app-partup-updates-newmessage-submit'}}
+                            {{/if }}
+                            {{#if isSubmitting }}
+                                {{> Spinner }}
+                            {{/if }}
+                        </span>
+                    </button>
+                </li>
+            </ul>            
         </footer>
     {{/autoForm}}
 </template>

@@ -13,7 +13,8 @@ Package.onUse(function(api) {
         'partup-lib',
         'tracker',
         'reactive-dict',
-        'aldeed:autoform'
+        'aldeed:autoform',
+        'partup-client-files',
     ], 'client');
 
     api.addFiles([

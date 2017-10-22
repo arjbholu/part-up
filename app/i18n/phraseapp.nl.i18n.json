@@ -1889,5 +1889,9 @@
   "widgetcommentfield-comment-systemmessage-show": "Laat meldingen zien",
   "widgetcommentfield-comment-totalcomments": "__count__ reactie",
   "widgetcommentfield-comment-totalcomments_plural": "__count__ reacties",
-  "widgetcommentfield-comment-viewall-button": "Toon alle %s reacties"
+  "widgetcommentfield-comment-viewall-button": "Toon alle %s reacties",
+  "filepicker-add-via": "Bijlage toevoegen via",
+  "filepicker-device": "apparaat",
+  "filepicker-dropbox": "dropbox",
+  "filepicker-googledrive": "google drive"
 }

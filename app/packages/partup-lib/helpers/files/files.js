@@ -140,7 +140,6 @@ Partup.helpers.files = {
         }
         const ext = this.getExtension(file);
 
-        console.log(file);
         return ext ?
             this.info[ext] ?
                 this.info[ext].icon ?
@@ -258,14 +257,7 @@ if (Meteor.isClient) {
                 bytes: dropboxFile.bytes,
                 service: Partup.helpers.files.FILE_SERVICES.DROPBOX,
             };
-            console.log(dropboxFile);
 
-            // If we decide to store images without uploading them ourselves
-            // if (Partup.helpers.files.isImage(file)) {
-            //     file.thumbnailUrl = dropboxFile.thumbnailUrl;
-            // }
-
-            // Depending on implementation, just take dropboxFile.link if we decide not to upload them ourselves and save it inside the Files collection.
             file.link = Partup.helpers.files.isImage(file) ?
                 `${dropboxFile.link.slice(0, -1)}1` :
             dropboxFile.link;

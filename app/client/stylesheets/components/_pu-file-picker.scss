@@ -1,30 +1,28 @@
 
 .pu-file-picker {
-    $left: 25%;
-    $left-min: em(220);
 
     &-header {
         position: relative;
-        border-bottom: 1px solid $color-primary-deepdark;
+        padding: em(10);
 
-        > button {
-            display: inline-block;
-            background-color: $color-primary;
-            border: none;
-            color: white;
-            font-weight: 700;
-            padding: em(9) em(0) em(9) em(5);
-            width: $left;
-            min-width: $left-min;
-            font-size: em(16);
-            border-right: 1px solid $color-primary-deepdark;
+        .pu-button {
+            background: $color-primary;
+            @include user-select(none);
+
+            &:hover, &:active, &:visited, &:link {
+                background: $color-primary;
+            }
+
+            .picon-caret-down, .picon-caret-up {
+                background: $color-primary;
+                color: white;
+            }
         }
 
         .pu-file-picker-remaining-wrap {
-            height: em(36);
             position: absolute;
-            right: em(10);
-            top: 25%;
+            right: em(11);
+            top: 39%;
 
             > span {
                 color: gray;
@@ -40,74 +38,142 @@
         }
     }   
 
+    &-content {
+        margin: em(10);
+        max-height: em(1000);
+        transition: max-height .5s linear;
+
+        &-collapsed {
+            margin: em(0);
+            max-height: em(0);
+            transition: max-height .5s linear;
+            overflow: hidden;
+            
+            .pu-file-picker-file-list-wrap, .pu-file-picker-browse-list {
+                display: none;
+            }
+        }
+    }
+
     &-browse-list {
-        width: $left;
-        min-width: $left-min;
         padding: em(0);
-        display: inline-block;
+        display: block;
         list-style: none;
-        background-color: $color-primary;
-        border-right: 1px solid $color-primary-deepdark;
-        max-height: em(0);
-        overflow: hidden;
-        vertical-align: top;
-        // transition: max-height .75s linear;
+        background: #B6B6B6;
+        border-bottom-left-radius: em(5);
+        border-bottom-right-radius: em(5);
 
         > li {
+            position: relative;
+            display: inline-block;
+            margin: em(5) em(0);
+            padding-right: em(8);
+
             .pu-file-picker-button {
-                display: block;
-                padding: em(10) em(0) em(10) em(10);
+                display:block;
+                padding: em(0) em(15);
                 color: white;
 
                 > i {
-                    padding: em(5);
+                    padding-right: em(8);
                 }
 
                 > span {
                     display: inline-block;
-                }
-
-                &:hover {
-                    background-color: $color-primary-deepdark;
+                    font-weight: bold;
                 }
             }
-        }
+            &:before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: em(4);
+                bottom: em(4);
+                width: 2px;
+                background: white;
+            }
 
-        &-expanded {
-            max-height: em(500);
-            transition: max-height .5s linear;
+            &:first-child {
+                margin: em(0) em(10);
+                color: white;
+
+                &:before {
+                    width: 0;
+                }
+            }
+
         }
     }
 
     &-file-list-wrap {
         padding: em(7.5);
-        list-style: none;
-        vertical-align: top;
-        display: inline-block;
-        margin-left: -$left-min;
 
-        > ul > li {
-            display: inline-block;
-            padding: em(5);
-        }
+        > ul {
+            list-style: none;
+            padding: em(0);
+            display:block;
+            
+            > li {
+                display: inline-block;
+                padding: em(5);
+                width: 49.6%;
 
-        &-reduced {
-            margin-left: 0;
-            transition: margin-left .5s linear;
+                .pu-file-picker-file-wrapper {
+                    position: relative;
+                    width: 100%;
+                    display: block;
+                    background: white;
+                    border-radius: em(5);
+                    white-space: nowrap;
+                    padding: em(10);
+                    
+
+                    .pu-file-picker-file-remove {
+                        display: none;
+                    }
+
+                    &:hover .pu-file-picker-file-remove {
+                        display: initial;
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        background: #B6B6B6;
+                        width: 20px;
+                        height: 20px;
+                        line-height: 20px;
+                        text-align: center;
+                        cursor: pointer;
+                    }
+
+                    > div {
+                        display: inline-block;
+                        vertical-align: middle;
+                        
+                        &:last-child {
+                            padding-left: em(5);
+                            width: 80%;
+
+                            > span {
+                                display: block;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-
+    
     .drop-area {
-        border: dashed 3px transparent;
-        // box-sizing: border-box;
-        &:hover, &-active {
-            border: dashed 3px #B6B6B6;
-        }
+        border: dashed 2px #B6B6B6;
+        border-bottom: 0;
+        border-radius: em(5);
     }
 
     .pu-file-picker-file-list-placeholder {
         text-align: center;
         display:block;
-        padding: em(15);
+        padding: em(25) em(15);
     }
 }

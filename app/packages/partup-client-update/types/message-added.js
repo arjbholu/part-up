@@ -17,5 +17,8 @@ Template.update_partups_message_added.helpers({
     },
     editMessagePopupId: function () {
         return 'edit-message-' + this._id;
-    }
+    },
+    areDocumentIds(documents) {
+        return (documents || []).filter(doc => typeof doc === 'string');
+    },
 });

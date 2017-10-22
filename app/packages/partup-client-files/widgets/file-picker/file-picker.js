@@ -4,15 +4,17 @@ Template.filePicker.onCreated(function() {
 });
 
 Template.filePicker.onRendered(function() {
-    this.autorun(() => {
-        const limitReached = this.controller.limitReached.get();
-        this.expanded.set(!limitReached);
-    });
+    // this.autorun(() => {
+    //     const limitReached = this.controller.limitReached.get();
+    //     console.log('gets triggered!');
+    //     console.log(limitReached);
+    //     this.expanded.set(!limitReached);
+    // });
 });
 
 Template.filePicker.onDestroyed(function() {
-    this.controller.destroy();
     this.expanded.set(false);
+    this.controller.destroy();
 });
 
 Template.filePicker.helpers({

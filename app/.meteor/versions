@@ -129,6 +129,7 @@ partup-client-copy-to-clipboard@0.0.1
 partup-client-dropbox-chooser@0.0.1
 partup-client-dropdown@0.0.1
 partup-client-dropdowns@0.0.1
+partup-client-files@0.0.1
 partup-client-focuspoint@0.0.1
 partup-client-footer@0.0.1
 partup-client-forminputs@0.0.1

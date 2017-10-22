@@ -22,7 +22,7 @@ Partup.server.services.files = {
         const basename = path.basename(fileData.name, extension);
         const id = fileData._id || Random.id();
 
-        const guid = `${basename.replace(/[^a-zA-Z0-9]/g, '').replace(/ /g, '.')} - ${id}${extension}`;
+        const guid = `${basename.replace(/[^a-zA-Z0-9]/g, '').replace(/ /g, '.')}-${id}${extension}`;
         
         const file = {
             _id: id,
@@ -35,7 +35,7 @@ Partup.server.services.files = {
             link: Partup.helpers.url.getFileUrl(guid),
         };
 
-        s3.putObjectSync({ Key: `files/'${guid}`, Body: body, ContentType: file.type });
+        s3.putObjectSync({ Key: `files/${guid}`, Body: body, ContentType: file.type });
         Files.insert(file);
         return file;
     },
