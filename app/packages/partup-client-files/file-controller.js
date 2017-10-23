@@ -1,10 +1,18 @@
 import _ from 'lodash';
 
-// TODO:
-// [] Set allowed mimes / extensions dynamically
-// [] Disable browse buttons when limit is reached
-// [] Create a uniform way to reject / throw errors
 
+/**
+ * A file controller can be passed onto a picker and provides behavior to share state between pickers.
+ *
+ * @param {Object} config {
+ *  limit: {
+ *    images:
+ *    documents:
+ *  }
+ *  categories: Partup.helpers.files.categories.CAT
+ * }
+ * @class _FileController
+ */
 class _FileController {
     constructor(config) {
         const calculateLimit = (collection, val) => {
@@ -15,7 +23,6 @@ class _FileController {
             images: 4,
             documents: 2,
         });
-        // Figure out how to deal with categories / extensions
         this.categories = config.categories || Partup.helpers.files.categories.all;
         this.uploading = new ReactiveVar(false);
         this.imagesRemaining = new ReactiveVar(this.limit.images, (oldVal, newVal) => calculateLimit('documentsRemaining', newVal));
@@ -35,6 +42,7 @@ class _FileController {
             }
         });
 
+        // internal sub handler
         this._subs = {};
     }
     
@@ -53,13 +61,7 @@ class _FileController {
 
         return new Promise((resolve, reject) => {
             if (file) {
-                if (!this.canAdd(file).length) {
-                    reject({
-                        ...baseError,
-                        code: 1,
-                        message: 'cannot add file to collection, canAdd() returned false',
-                    });
-                } else {
+                if (this.canAdd(file).length) {
                     const allowedServices = [
                         Partup.helpers.files.FILE_SERVICES.DROPBOX,
                         Partup.helpers.files.FILE_SERVICES.GOOGLEDRIVE,
@@ -101,10 +103,6 @@ class _FileController {
                             }
                         });
                     } else {
-                        // // If we decide not to put dropbox & drive files into our Files collection:
-                        // resolve(Object.assign({
-                            // _id: Random.id(),
-                        // }, file))
                         Meteor.call('files.insert', file, function(error, result) {
                             if (error) {
                                 reject(error);
@@ -121,6 +119,12 @@ class _FileController {
                             }
                         });
                     }
+                } else {
+                    reject({
+                        ...baseError,
+                        code: 1,
+                        message: 'cannot add file to collection, canAdd() returned false',
+                    });
                 }
             } else {
                 reject({
@@ -210,7 +214,10 @@ class _FileController {
                 }
             });
         } else {
-            throw new Error('log something for debugging');
+            throw {
+                code: 0,
+                message: 'addFilesToCache: input undefined',
+            };
         }
     }
 
@@ -224,7 +231,10 @@ class _FileController {
             const files = _.filter(this.files.get(), file => !_.includes(ids, file._id));
             this.files.set(files);
         } else {
-            throw new Error('log something for debugging');
+            throw {
+                code: 0,
+                message: 'removeFilesFromCache: input undefined',
+            };
         }
     }
 
@@ -237,16 +247,11 @@ class _FileController {
      * @memberof _FileController
      */
     removeAllFilesBesides(fileIds = []) {
-        console.log('files in cache: ', this.files.get());
-        console.log('fileIds: ', fileIds);
         const filesToRemove = _.filter(this.files.get(), file => !_.includes(fileIds, file._id));
-
-        console.log('files to remove: ', filesToRemove);
-
         _.each(filesToRemove, (file) => {
             this.removeFileFromCollection(file._id)
                 .then(id => this.removeFilesFromCache(id))
-                .catch((error) => { throw error });
+                .catch((error) => { throw error; }); // sis not important for the user.
         });
     }
 
@@ -254,6 +259,7 @@ class _FileController {
      * Checks if there's still room for more files according to the set limit
      *
      * @param {File} file
+     * @param {Function} callback fired for each file that would exceed the limit.
      * @returns {Boolean}
      * @memberof _FileController
      */
@@ -279,8 +285,6 @@ class _FileController {
         });
 
         return filesThatCanBeAdded;
-
-        // return Partup.helpers.files.isImage(file) ? this.imagesRemaining.get() > 0 : this.documentsRemaining.get() > 0;
     }
 
     clearFileCache() {
@@ -290,7 +294,6 @@ class _FileController {
     clearAllSubscribtions() {
         _.each(this._subs, sub => sub.stop());
 
-        // TODO: make proper implementation to delete all subs
         while (this._subs && this._subs.length) {
             this._subs.pop();
         }

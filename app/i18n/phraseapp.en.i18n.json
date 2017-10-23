@@ -1854,6 +1854,8 @@
   "update-type-partups_uppers_added-title": "__name__ is partner in this part-up now",
   "update-type-rated-title": "__name__ rated __contributor__ on '__activity__'",
   "update-type-system_supporters_removed-title": "__name__ is not a supporter anymore",
+  "upload-error-0": "Internal upload error",
+  "upload-error-1": "Internal upload error",
   "upload-error-100": "Sorry, something went wrong with uploading __filename__, please try again",
   "upload-error-200": "Sorry, we could not recieve __filename__, please try again",
   "upload-error-300": "Could not read __filename__, please try again",

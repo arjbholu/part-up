@@ -197,7 +197,6 @@ AutoForm.hooks({
                 }
             });
 
-            Partup.client.popup.close();
             Meteor.call('updates.messages.insert', messageForm.partupId, formData, function(error, result) {
                 Partup.client.updates.setWaitForUpdate(false);
                 
@@ -219,8 +218,9 @@ AutoForm.hooks({
                     });
                     AutoForm.resetForm('newMessageForm');
                 } catch (err) {}
-                    
+                
                 messageForm.reset();
+                Partup.client.popup.close();
                 self.done();
                 Partup.client.events.emit('partup:updates:message_added');
             });
@@ -254,7 +254,6 @@ AutoForm.hooks({
                 }
             });
 
-            Partup.client.popup.close();
             Meteor.call('updates.messages.update', messageForm.update._id, formData, function(error) {
                 
                 if (error) {
@@ -269,6 +268,7 @@ AutoForm.hooks({
                 } catch (err) { }
                 
                 messageForm.reset();
+                Partup.client.popup.close();
                 self.done();
             });
 

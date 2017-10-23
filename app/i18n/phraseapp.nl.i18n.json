@@ -1859,6 +1859,8 @@
   "update-type-partups_uppers_added-title": "__name__ is nu partner in deze part-up",
   "update-type-rated-title": "__name__ waardeerde de bijdrage van __contributor__",
   "update-type-system_supporters_removed-title": "__name__ is geen supporter meer",
+  "upload-error-0": "Interne upload fout",
+  "upload-error-1": "Interne upload fout",
   "upload-error-100": "Sorrie, er is iets fout gegaan bij het uploaden van __filename__, probeer het nogmaals",
   "upload-error-200": "Sorrie, wij hebben het bestand __filename__ niet kunnen ontvangen, probeer het nogmaals",
   "upload-error-300": "Kan het bestand __filename__ niet lezen, probeer het nogmaals",

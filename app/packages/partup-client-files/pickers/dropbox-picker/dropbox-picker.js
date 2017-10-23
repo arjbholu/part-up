@@ -19,21 +19,21 @@ Template.dropboxPicker.onRendered(function () {
 
         const transformedFiles = _.map(dropboxFiles, Partup.helpers.files.transform.dropbox);
         const files = this.controller.canAdd(transformedFiles, (removedFile) => {
-            Partup.client.notify.info(`Removed ${removedFile.name} because the limit is reached`);
+            Partup.client.notify.info(TAPi18n.__('upload-info-limit-reached', { filename: removedFile.name }));
         });
 
         _.each(files, (file) => {
             const uploadPromise =
                 template.controller.insertFileToCollection(file)
                     .then(inserted => template.controller.addFilesToCache(inserted))
-                    .catch((error) => { throw error; });
+                    .catch((error) => { Partup.client.notify.error(TAPi18n.__(`upload-error-${error.code}`, { filename: file.name })); });
 
             uploadPromises.push(uploadPromise);
         });
 
         Promise.all(uploadPromises)
             .then(() => template.controller.uploading.set(false))
-            .catch((error) => { throw error; });
+            .catch((error) => { Partup.client.notify.error(TAPi18n.__(`upload-error-${error.code}`)); });
     };
 
     const open = () => {

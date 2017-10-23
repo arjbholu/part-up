@@ -72,13 +72,9 @@ Template.filePicker.events({
     'click [data-remove-upload]'(event, templateInstance) {
         const fileId = $(event.target).data('remove-upload');
         if (fileId) {
-            templateInstance.controller.removeFileFromCollection(fileId)
-                .then(removedId => templateInstance.controller.removeFilesFromCache(removedId))
-                .catch((error) => {
-                    Partup.client.notify.error(TAPi18n.__(`pu-error-files-${error.code}`));
-                });
+            templateInstance.controller.removeFilesFromCache(fileId);
         } else {
-            Partup.client.notify.error(TAPi18n.__(`pu-error-files-${3412351532}`));
+            Partup.client.notify.error(TAPi18n.__('upload-error-1'));
         }
     },
 });

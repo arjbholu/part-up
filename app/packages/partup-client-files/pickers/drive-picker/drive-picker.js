@@ -51,7 +51,7 @@ Template.drivePicker.onRendered(function() {
             // Files first need to be transformed in order for canAdd to work.
             const transformedFiles = _.map(data.docs, Partup.helpers.files.transform.googledrive);
             const files = template.controller.canAdd(transformedFiles, (removedFile) => {
-                Partup.client.notify.info(`Removed ${removedFile.name} because the limit is reached`);
+                Partup.client.notify.info(TAPi18n.__('upload-info-limit-reached', { filename: removedFile.name }));
                 _.remove(data.docs, d => d.name === removedFile.name);
             });
             
@@ -66,7 +66,7 @@ Template.drivePicker.onRendered(function() {
                         const uploadPromise =
                             template.controller.insertFileToCollection(file)
                                 .then(inserted => template.controller.addFilesToCache(inserted))
-                                .catch((error) => { throw error; });
+                                .catch((error) => { Partup.client.notify.error(TAPi18n.__(`upload-error-${error.code}`)); });
 
                         uploadPromises.push(uploadPromise);
                     });
