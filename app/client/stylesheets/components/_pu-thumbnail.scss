@@ -29,4 +29,11 @@
             }
         }
     }
+
+    &-loading {
+        width: 50px;
+        height: 50px;
+        background: transparent;
+        border: dashed 2px #B6B6B6;
+    }
 }

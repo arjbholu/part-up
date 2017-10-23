@@ -9,12 +9,10 @@
             bottom: em(15);
             right: em(15);
         }
-    }
 
-    .pu-file-picker-wrap {
-        border: 2px solid $color-border;
-        border-top: 0;
-        border-bottom-left-radius: em(5);
-        border-bottom-right-radius: em(5);
+        > textarea {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
     }
 }

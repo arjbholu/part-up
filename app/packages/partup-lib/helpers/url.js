@@ -87,7 +87,7 @@ Partup.helpers.url = {
     getFileUrl: function(fileGuid) {
         const guid = typeof fileGuid === 'string' ?
             fileGuid :
-        file.guid;
+        fileGuid.guid || fileGuid.name;
 
         // staging acceptance production aws image url
         return ['https://s3-',

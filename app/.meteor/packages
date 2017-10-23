@@ -56,14 +56,12 @@ partup-client-column-tiles-layout
 partup-client-comments
 partup-client-contribution
 partup-client-copy-to-clipboard
-partup-client-dropbox-chooser
 partup-client-dropdown
 partup-client-dropdowns
 partup-client-focuspoint
 partup-client-footer
 partup-client-forminputs
 partup-client-gallery
-partup-client-google-drive-picker
 partup-client-header
 partup-client-hover-container
 partup-client-invite-to-activity

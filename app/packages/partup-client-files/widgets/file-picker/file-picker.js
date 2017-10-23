@@ -1,15 +1,29 @@
 Template.filePicker.onCreated(function() {
     this.controller = this.data.controller;
-    this.expanded = new ReactiveVar(false);
+    this.expanded = new ReactiveVar(false, (oldVal, newVal) => {
+        const $expandButton = $(this.find('[data-expand-picker]'));
+
+        if ($expandButton) {
+            const $chevron = $expandButton.find('i');
+            if (newVal) {
+                $chevron.removeClass('picon-caret-down');
+                $chevron.addClass('picon-caret-up');
+            } else {
+                $chevron.removeClass('picon-caret-up');
+                $chevron.addClass('picon-caret-down');
+            }
+        }
+    });
 });
 
 Template.filePicker.onRendered(function() {
-    // this.autorun(() => {
-    //     const limitReached = this.controller.limitReached.get();
-    //     console.log('gets triggered!');
-    //     console.log(limitReached);
-    //     this.expanded.set(!limitReached);
-    // });
+    this.autorun((computation) => {
+        const haveFiles = this.controller.haveFiles.get();
+        if (haveFiles) {
+            this.expanded.set(true);
+            computation.stop();
+        }
+    });
 });
 
 Template.filePicker.onDestroyed(function() {

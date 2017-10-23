@@ -88,21 +88,20 @@ Template.messageForm.onCreated(function () {
 });
 
 Template.messageForm.onRendered(function () {
-
     const removeFiles = () => {
-        const { typeData } = template.update;
+        const { typeData } = this.update;
         
         if (typeData) {
-            template.fileController.removeAllFilesBesides(_.concat(typeData.images, typeData.documents));
+            this.fileController.removeAllFilesBesides(_.concat(typeData.images, typeData.documents));
         } else {
-            template.fileController.removeAllFilesBesides();
+            this.fileController.removeAllFilesBesides();
         }
 
-        $('[data-dismiss]').on('click', removeFiles);
+        $('[data-dismiss]').off('click', removeFiles);
         this.destroy();
     };
     
-    // Handled here because this template can't access the popup's close button via the ({events}).
+    // Handled here because this template can't access the popup's close button via the messageForm.events({}).
     $('[data-dismiss]').on('click', removeFiles);
 });
 

@@ -1,6 +1,48 @@
 
 .pu-file-picker {
 
+    &-wrap {
+        position: relative;
+        border: 2px solid #e1e1e1;
+        border-top: 0;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+
+        &:hover {
+            border-color: #bfbfbf;
+        }
+
+        &:before {
+            content: "";
+            width: 100%;
+            height: 2px;
+            background: #e1e1e1;
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+        }
+
+        &:after {
+            content: "";
+            width: calc(100% + 4px);
+            height: 2px;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            opacity: 0;
+            position: absolute;
+            background: #bfbfbf;
+            z-index: 100;
+            display: block;
+            transition: opacity 0.15s;
+        }
+
+        &:hover:after {
+            opacity: 1;
+        }
+    }
+
     &-header {
         position: relative;
         padding: em(10);

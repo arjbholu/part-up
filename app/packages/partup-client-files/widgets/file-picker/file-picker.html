@@ -22,9 +22,13 @@
                 <ul>
                     {{#if uploading }}
                         <li>
-                            <figure class="pu-icon-loading">
-                                {{> Spinner color='inverted' type='small' }}
-                            </figure>
+                            <div class="pu-file-picker-file-wrapper">
+                                <figure class="pu-thumbnail-loading">
+                                    <span style="display:block;padding-top:10px;">
+                                        {{> Spinner }}
+                                    </span>
+                                </figure>
+                            </div>
                         </li>
                     {{/if }}
                     {{#each images }}
