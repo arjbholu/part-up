@@ -2,7 +2,7 @@
     <section class="pu-file-picker">
         <header class="pu-file-picker-header">
             <button type="button" class="pu-button" data-expand-picker>
-                {{_ 'pages-app-partup-updates-newmessage-addmedia' }}
+                <span>{{_ 'pages-app-partup-updates-newmessage-addmedia' }}</span>
                 <i class="picon-caret-down"></i>
             </button>
             <div class="pu-file-picker-remaining-wrap">
@@ -24,9 +24,9 @@
                         <li>
                             <div class="pu-file-picker-file-wrapper">
                                 <figure class="pu-thumbnail-loading">
-                                    <span style="display:block;padding-top:10px;">
+                                    <div>
                                         {{> Spinner }}
-                                    </span>
+                                    </div>
                                 </figure>
                             </div>
                         </li>
@@ -63,7 +63,7 @@
                 {{#unless uploading }}
                     {{#unless haveFiles }}
                         {{#if expanded }}
-                            <span class="pu-file-picker-file-list-placeholder">You can choose an uploader from the left<br/>or drop a file on this area</span>
+                            <span class="pu-file-picker-file-list-placeholder">{{{_ 'filepicker-placeholder' }}}</span>
                         {{/if }}
                     {{/unless }}
                 {{/unless }}

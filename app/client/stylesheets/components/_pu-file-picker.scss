@@ -51,6 +51,12 @@
             background: $color-primary;
             @include user-select(none);
 
+            > span {
+                display: inline-block;
+                font-size: 15px;
+                padding-right: em(10);
+            }
+
             &:hover, &:active, &:visited, &:link {
                 background: $color-primary;
             }
@@ -101,7 +107,7 @@
         padding: em(0);
         display: block;
         list-style: none;
-        background: #B6B6B6;
+        background: #bababa;
         border-bottom-left-radius: em(5);
         border-bottom-right-radius: em(5);
 
@@ -113,7 +119,7 @@
 
             .pu-file-picker-button {
                 display:block;
-                padding: em(0) em(15);
+                padding: em(0) em(15) em(0) em(20);
                 color: white;
 
                 > i {
@@ -123,6 +129,7 @@
                 > span {
                     display: inline-block;
                     font-weight: bold;
+                    font-size: 15px;
                 }
             }
             &:before {
@@ -149,6 +156,11 @@
 
     &-file-list-wrap {
         padding: em(7.5);
+
+        > span {
+            @include user-select(none);
+            pointer-events: none;
+        }
 
         > ul {
             list-style: none;
@@ -179,7 +191,7 @@
                         position: absolute;
                         top: 0;
                         right: 0;
-                        background: #B6B6B6;
+                        background: #bababa;
                         width: 20px;
                         height: 20px;
                         line-height: 20px;
@@ -208,9 +220,13 @@
     }
     
     .drop-area {
-        border: dashed 2px #B6B6B6;
+        border: dashed 2px #d8d8d8;
         border-bottom: 0;
         border-radius: em(5);
+
+        &-active {
+            border-color: #B6B6B6;
+        }
     }
 
     .pu-file-picker-file-list-placeholder {

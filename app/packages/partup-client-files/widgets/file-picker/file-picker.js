@@ -24,6 +24,36 @@ Template.filePicker.onRendered(function() {
             computation.stop();
         }
     });
+
+    (() => {
+        const $dropEl = $(this.find('[data-drop-area]'));
+        const activeClass = 'drop-area-active';
+
+        let ignoreLeave = false;
+
+        $dropEl.on('dragenter', function(event) {
+            if (event.target !== this) {
+                ignoreLeave = true;
+            }
+            $(this).addClass(activeClass);
+        }).on('dragleave', function(event) {
+            if (ignoreLeave) {
+                ignoreLeave = false;
+                return;
+            }
+            $(this).removeClass(activeClass);
+        }).on('dragend', function(event) {
+            $dropEl.removeClass(activeClass);
+        }).on('drop', function(event) {
+            $dropEl.removeClass(activeClass);
+        });
+
+        _.each($dropEl.children, child => {
+            $(child).on('dragleave', function(event) {
+                event.stopPropagation();
+            });
+        });
+    })();
 });
 
 Template.filePicker.onDestroyed(function() {

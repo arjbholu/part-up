@@ -1890,5 +1890,6 @@
   "filepicker-add-via": "Add file via",
   "filepicker-device": "device",
   "filepicker-dropbox": "dropbox",
-  "filepicker-googledrive": "google drive"
+  "filepicker-googledrive": "google drive",
+  "filepicker-placeholder": "Drag 'n drop a file<br />or use one of the other uploaders"
 }

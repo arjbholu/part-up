@@ -2,6 +2,11 @@
 
     .pu-new-message-input-wrap {
         position: relative;
+
+        .pu-textarea {
+            border-bottom-left-radius: em(0);
+            border-bottom-right-radius: em(0);
+        }
         
         .markdown-support {
             display: inline-block;

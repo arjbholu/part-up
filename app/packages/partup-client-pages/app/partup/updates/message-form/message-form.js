@@ -132,7 +132,7 @@ Template.messageForm.helpers({
         return Template.instance().fileController;
     },
     isSubmitting() {
-        return Template.instance().isSubmitting();
+        return Template.instance().state.submitting.get();
     },
     isExistingUpdate() {
         return Template.instance().isExistingUpdate;

@@ -1895,5 +1895,6 @@
   "filepicker-add-via": "Bijlage toevoegen via",
   "filepicker-device": "apparaat",
   "filepicker-dropbox": "dropbox",
-  "filepicker-googledrive": "google drive"
+  "filepicker-googledrive": "google drive",
+  "filepicker-placeholder": "Drag 'n drop een van de bijlagen<br />of gebruik een van de andere uploaders"
 }
