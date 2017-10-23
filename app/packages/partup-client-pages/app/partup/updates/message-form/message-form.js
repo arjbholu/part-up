@@ -88,21 +88,21 @@ Template.messageForm.onCreated(function () {
 });
 
 Template.messageForm.onRendered(function () {
-    const removeFiles = () => {
-        const { typeData } = this.update;
-        
-        if (typeData) {
-            this.fileController.removeAllFilesBesides(_.concat(typeData.images, typeData.documents));
+    this.removeFiles = () => {
+        const { type_data } = this.update;
+
+        if (type_data) {
+            this.fileController.removeAllFilesBesides(_.concat(type_data.images, type_data.documents));
         } else {
             this.fileController.removeAllFilesBesides();
         }
 
-        $('[data-dismiss]').off('click', removeFiles);
+        $('[data-dismiss]').off('click', this.removeFiles);
         this.destroy();
     };
     
     // Handled here because this template can't access the popup's close button via the messageForm.events({}).
-    $('[data-dismiss]').on('click', removeFiles);
+    $('[data-dismiss]').on('click', this.removeFiles);
 });
 
 Template.messageForm.onDestroyed(function () {
@@ -139,6 +139,12 @@ Template.messageForm.helpers({
     },
 });
 
+Template.messageForm.events({
+    'click [data-dismiss]'(event, templateInstance) {
+        templateInstance.removeFiles();
+    },
+});
+
 /**
  * Runs when an 'afFieldInput' get's rendered.
  */
@@ -168,6 +174,12 @@ AutoForm.hooks({
         onSubmit(insertDoc) {
             const self = this;
             const messageForm = Template.instance().parent();
+
+            if (messageForm.fileController.uploading.get()) {
+                Partup.client.notify.info('still uploading');
+                return false;
+            }
+
             messageForm.isSubmitting(true);
             Partup.client.updates.setWaitForUpdate(true);
 
@@ -220,6 +232,11 @@ AutoForm.hooks({
         onSubmit(insertDoc) {
             const self = this;
             const messageForm = Template.instance().parent();
+
+            if (messageForm.fileController.uploading.get()) {
+                Partup.client.notify.info('still uploading');
+                return false;
+            }
 
             messageForm.isSubmitting(true);
 

@@ -45,10 +45,10 @@ Partup.helpers.files = {
     signatures: {},
 
     /**
-     * Maximum file size in bytes (binary, 10mb)
+     * Maximum file size in bytes (binary, 20mb)
      * @memberof Partup.helpers.files
      */
-    max_file_size: 10485760,
+    max_file_size: 20971520,
 
     FILE_SERVICES: {
         PARTUP: 'partup',
@@ -87,7 +87,7 @@ Partup.helpers.files = {
 
         if (!info) {
             throw new Meteor.Error(0, 'invalid name and type');
-        } else if (!info instanceof FileInfo) {
+        } else if (!(info instanceof FileInfo)) {
             return undefined;
         }
         

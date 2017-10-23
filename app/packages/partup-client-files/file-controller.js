@@ -237,7 +237,11 @@ class _FileController {
      * @memberof _FileController
      */
     removeAllFilesBesides(fileIds = []) {
-        const filesToRemove = _.filter(this.files.get(), file => _.includes(fileIds, file._id));
+        console.log('files in cache: ', this.files.get());
+        console.log('fileIds: ', fileIds);
+        const filesToRemove = _.filter(this.files.get(), file => !_.includes(fileIds, file._id));
+
+        console.log('files to remove: ', filesToRemove);
 
         _.each(filesToRemove, (file) => {
             this.removeFileFromCollection(file._id)
@@ -273,8 +277,6 @@ class _FileController {
                 callback(file);
             }
         });
-
-        console.log(filesThatCanBeAdded);
 
         return filesThatCanBeAdded;
 
