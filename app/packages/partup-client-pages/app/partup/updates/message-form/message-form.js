@@ -56,16 +56,7 @@ Template.messageForm.onCreated(function () {
         }
     }
 
-    const state = {
-        submitting: new ReactiveVar(false),
-    };
-
-    this.isSubmitting = function(val = undefined) {
-        if (val !== undefined) {
-            state.submitting.set(val);
-        }
-        return state.submitting.get();
-    };
+    this.isSubmitting = new ReactiveVar(false);
 
     this.reset = () => {
         if (this.mentionsInput) {
@@ -74,7 +65,7 @@ Template.messageForm.onCreated(function () {
         if (this.fileController) {
             this.fileController.reset();
         }
-        this.isSubmitting(false);
+        this.isSubmitting.set(false);
     };
 
     this.destroy = () => {
@@ -132,7 +123,7 @@ Template.messageForm.helpers({
         return Template.instance().fileController;
     },
     isSubmitting() {
-        return Template.instance().state.submitting.get();
+        return Template.instance().isSubmitting.get();
     },
     isExistingUpdate() {
         return Template.instance().isExistingUpdate;
@@ -180,7 +171,7 @@ AutoForm.hooks({
                 return false;
             }
 
-            messageForm.isSubmitting(true);
+            messageForm.isSubmitting.set(true);
             Partup.client.updates.setWaitForUpdate(true);
 
             const formData = _.assignIn(insertDoc, {
@@ -238,7 +229,7 @@ AutoForm.hooks({
                 return false;
             }
 
-            messageForm.isSubmitting(true);
+            messageForm.isSubmitting.set(true);
 
             const formData = _.assignIn(insertDoc, {
                 text: messageForm.mentionsInput.getValue(),

@@ -42,6 +42,11 @@ class _FileController {
             }
         });
 
+        // When a user removes a file from the widget it's already uploaded
+        // In the case of an existing entity we can't yet remove it from the collection (user can still press cancel)
+        // We store the references the user removes here and clean up afterwards, see 'removeAllFilesBesides'
+        this.removedFromCache = new ReactiveVar([]);
+
         // internal sub handler
         this._subs = {};
     }
@@ -150,7 +155,7 @@ class _FileController {
     
                 let col = collection;
                 if (!collection) {
-                    const foundFile = _.find(this.files.get(), ({ _id }) => _id === fileId);
+                    const foundFile = _.find(this.files.get(), ({ _id }) => _id === fileId) || _.find(this.removedFromCache.get(), ({ _id }) => _id === fileId);
                     if (foundFile) {
                         col = Partup.helpers.files.isImage(foundFile) ? 'images' : 'files';
                     } else {
@@ -161,7 +166,7 @@ class _FileController {
                         });
                     }
                 }
-                 
+
                 if (col === 'images' || col === 'files') {
                     Meteor.call(`${col}.remove`, fileId, function(error, result) {
                         if (error) {
@@ -229,6 +234,7 @@ class _FileController {
         if (fileIds) {
             const ids = Array.isArray(fileIds) ? fileIds : [fileIds];
             const files = _.filter(this.files.get(), file => !_.includes(ids, file._id));
+            this.removedFromCache.set(_.concat(this.removedFromCache.get(), _.filter(this.files.get(), file => _.includes(ids, file._id))));
             this.files.set(files);
         } else {
             throw {
@@ -247,7 +253,11 @@ class _FileController {
      * @memberof _FileController
      */
     removeAllFilesBesides(fileIds = []) {
-        const filesToRemove = _.filter(this.files.get(), file => !_.includes(fileIds, file._id));
+        const filesToRemove = _.concat(
+            _.filter(this.files.get(), file => !_.includes(fileIds, file._id)),
+            _.filter(this.removedFromCache.get(), file => !_.includes(fileIds, file._id)),
+        );
+        
         _.each(filesToRemove, (file) => {
             this.removeFileFromCollection(file._id)
                 .then(id => this.removeFilesFromCache(id))
@@ -282,6 +292,7 @@ class _FileController {
             } else if (callback) {
                 callback(file);
             }
+            return false;
         });
 
         return filesThatCanBeAdded;
@@ -289,6 +300,7 @@ class _FileController {
 
     clearFileCache() {
         this.files.set([]);
+        this.removedFromCache.set([]);
     }
 
     clearAllSubscribtions() {

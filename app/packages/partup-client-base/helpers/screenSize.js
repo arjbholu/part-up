@@ -16,7 +16,6 @@ const screenHelper = {
         large: 1200,
         extra_large: 1800,
     }),
-    dep: new Tracker.Dependency(),
     extractValue(templateInput) {
         return this.isNumber(Number(templateInput)) ?
             Number(templateInput) :
@@ -33,17 +32,7 @@ const screenHelper = {
     isNumber(templateInput) {
         return typeof templateInput === 'number';
     },
-    getScreenSize() {
-        return Partup.client.screen.size.get('width');
-    },
 };
-
-/**
- * Make the template helpers reactive by reacting to the orientationchange event
- */
-window.addEventListener('orientationchange', () => {
-    screenHelper.dep.changed();
-});
 
 /**
  * Template helpers
@@ -56,10 +45,10 @@ window.addEventListener('orientationchange', () => {
  * @return Boolean true if the @param size is equal or higher than the screen size
  */
 Template.registerHelper('screenWidthEqualOrBelow', function (size) {
-    screenHelper.dep.depend();
+    const screenSize = Partup.client.screen.size.get('width');
 
     const input = screenHelper.extractValue(size);
-    return screenHelper.checkExpression(() => screenHelper.getScreenSize() <= input, input);
+    return screenHelper.checkExpression(() => screenSize <= input, input);
 });
 
 /**
@@ -69,10 +58,11 @@ Template.registerHelper('screenWidthEqualOrBelow', function (size) {
  * @return Boolean true if the @param size is equal or less than the screen size
  */
 Template.registerHelper('screenWidthEqualOrAbove', function (size) {
-    screenHelper.dep.depend();
+    const screenSize = Partup.client.screen.size.get('width');
 
     const input = screenHelper.extractValue(size);
-    return screenHelper.checkExpression(() => screenHelper.getScreenSize() >= input, input);
+    const e = screenHelper.checkExpression(() => screenSize >= input, input);
+    return e;
 });
 
 /**
@@ -83,11 +73,11 @@ Template.registerHelper('screenWidthEqualOrAbove', function (size) {
  * @return Boolean true if the screen sie is in range of @param min and @param max
  */
 Template.registerHelper('inRange', function (min, max) {
-    screenHelper.dep.depend();
+    const screenSize = Partup.client.screen.size.get('width');
 
     const minVal = screenHelper.extractValue(min);
     const maxVal = screenHelper.extractValue(max);
-    return screenHelper.checkExpression(() => getScreenSize() >= minVal && getScreenSize() <= maxVal, minVal, maxVal);
+    return screenHelper.checkExpression(() => screenSize >= minVal && screenSize <= maxVal, minVal, maxVal);
 });
 
 //////////

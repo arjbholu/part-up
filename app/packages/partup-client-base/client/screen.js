@@ -1,3 +1,4 @@
+import { throttle, debounce } from 'lodash';
 /**
  * Reactive screen size source
  *
@@ -6,26 +7,17 @@
  */
 
 Partup.client.screen = {
-
     _initialized: false,
-    init: function() {
-        if (!window) return;
 
-        var self = this;
-        if (this._initialized) return console.warn('screen.js: cannot initialize multiple times');
+    init() {
+        if (!window || this._initialized) return;
+        const updateSize = throttle(this.triggerUpdate, 16);
+
+        window.addEventListener('resize', updateSize);
+        window.addEventListener('orientationchange', updateSize);
+        Meteor.defer(this.triggerUpdate);
 
         this._initialized = true;
-
-        // Debounced update function
-        var d = lodash.debounce(function() {
-            self.triggerUpdate.apply(self);
-        }, 30);
-
-        // Trigger a size update when the user resizes the screen
-        $(window).on('resize orientationchange', d);
-
-        // Trigger a size update once
-        Meteor.defer(d);
     },
 
     /**
@@ -40,10 +32,10 @@ Partup.client.screen = {
      *
      * @memberof Partup.client.screen
      */
-    triggerUpdate: function() {
+    triggerUpdate() {
         Partup.client.screen.size.set('width', window.innerWidth);
         Partup.client.screen.size.set('height', window.innerHeight);
-    }
+    },
 };
 
-Partup.client.screen.triggerUpdate();
+Partup.client.screen.init();

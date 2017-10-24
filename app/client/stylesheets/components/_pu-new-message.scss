@@ -20,4 +20,36 @@
             border-bottom-right-radius: 0;
         }
     }
+
+    .pu-file-picker-wrap {
+        position: relative;
+        border: 2px solid #bfbfbf;
+        border-top: 0;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+        margin-top: -2px;
+    }
+
+    .pu-list-buttons {
+        margin-right: em(10);
+        margin-bottom: em(10);
+
+        > li {
+            margin: em(0);
+            text-align: center;
+
+            .pu-button-text-subtle {
+                // display: inline;
+                width: auto;
+            }
+
+            &:last-child {
+                margin-bottom: em(20);
+
+                @include goingLarge(768) {
+                    margin-bottom: em(0);
+                }
+            }
+        }
+    }
 }

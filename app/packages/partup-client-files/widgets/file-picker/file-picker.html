@@ -1,60 +1,54 @@
 <template name="filePicker">
     <section class="pu-file-picker">
-        <header class="pu-file-picker-header">
-            <button type="button" class="pu-button" data-expand-picker>
+        <header class="header">
+            <button type="button" class="pu-button expand-picker" data-expand-picker>
                 <span>{{_ 'pages-app-partup-updates-newmessage-addmedia' }}</span>
                 <i class="picon-caret-down"></i>
             </button>
-            <div class="pu-file-picker-remaining-wrap">
-                <span>
-                    {{_ 'pages-app-partup-updates-newmessage-counter-still' }}
-                    <strong>{{imagesRemaining}} </strong>
-                    {{_ 'pages-app-partup-updates-newmessage-counter-images' }}
-                    {{_ 'pages-app-partup-updates-newmessage-counter-and' }}
-                    <strong>{{documentsRemaining}} </strong>
-                    {{_ 'pages-app-partup-updates-newmessage-counter-documents' }}
-                    {{_ 'pages-app-partup-updates-newmessage-media-left' }}
-                </span>
-            </div>
+            <span class="remaining">
+                {{_ 'pages-app-partup-updates-newmessage-counter-still' }}
+                <strong>{{imagesRemaining}} </strong>
+                {{_ 'pages-app-partup-updates-newmessage-counter-images' }}
+                {{_ 'pages-app-partup-updates-newmessage-counter-and' }}
+                <strong>{{documentsRemaining}} </strong>
+                {{_ 'pages-app-partup-updates-newmessage-counter-documents' }}
+                {{_ 'pages-app-partup-updates-newmessage-media-left' }}
+            </span>
         </header>
-        <div class="pu-file-picker-content {{#unless expanded}}pu-file-picker-content-collapsed{{/unless }}">
-            <div class="pu-file-picker-file-list-wrap drop-area" data-drop-area>
-                <ul>
+        <div class="content {{#unless expanded}}content-collapsed{{/unless }}">
+            <div class="drop-area" data-drop-area>
+                <ul class="file-list">
                     {{#if uploading }}
                         <li>
-                            <div class="pu-file-picker-file-wrapper">
-                                <figure class="pu-thumbnail-loading">
-                                    <div>
-                                        {{> Spinner }}
-                                    </div>
-                                </figure>
+                            <div class="file-wrap file-wrap-loading">
+                                {{> Spinner }}
                             </div>
                         </li>
                     {{/if }}
                     {{#each images }}
                         <li>
-                            <div class="pu-file-picker-file-wrapper">
-                                    <span class="pu-file-picker-file-remove" data-remove-upload="{{ _id }}">x</span>
+                            <div class="file-wrap">
                                 <div>
+                                    <span class="file-remove" data-remove-upload="{{ _id }}">x</span>
                                     <figure data-type="image" class="pu-thumbnail"
                                         style="background-image:url('{{ getImageUrl . }}')"></figure>
                                 </div>
-                                <div>
-                                    <span>{{ name }}</span>
+                                <div class="file-name-wrap">
+                                    <p class="file-name">{{ name }}</p>
                                 </div>
                             </div>
                         </li>
                     {{/each }}
                     {{#each documents }}
                         <li>
-                            <div class="pu-file-picker-file-wrapper">
-                                <span class="pu-file-picker-file-remove" data-remove-upload="{{ _id }}">x</span>
+                            <div class="file-wrap file-wrap-small">
                                 <div>
+                                    <span class="file-remove" data-remove-upload="{{ _id }}">x</span>
                                     <figure data-type="document" class="pu-doc-icon"
                                         style="background-image:url('/images/add-media-icons/{{ getSvgIcon . }}');"></figure>
                                 </div>
-                                <div>
-                                    <span>{{ name }}</span>
+                                <div class="file-name-wrap">
+                                    <p class="file-name">{{ name }}</p>
                                 </div>
                             </div>
                         </li>
@@ -63,37 +57,56 @@
                 {{#unless uploading }}
                     {{#unless haveFiles }}
                         {{#if expanded }}
-                            <span class="pu-file-picker-file-list-placeholder">{{{_ 'filepicker-placeholder' }}}</span>
+                            <span class="file-list-placeholder">{{{_ 'filepicker-placeholder' }}}</span>
                         {{/if }}
                     {{/unless }}
                 {{/unless }}
             </div>
-            <ul class="pu-file-picker-browse-list">
-                <li>
+            <div class="browse-list-wrap">
+                <span class="list-prefix">
                     {{_ 'filepicker-add-via' }}
-                </li>
-                <li>
-                    {{#devicePicker controller=controller }}
-                        <a class="pu-file-picker-button" data-browse-device>
-                            <i class="picon-upload"></i><span>{{_ 'filepicker-device' }}</span>
-                        </a>
-                    {{/devicePicker }}
-                </li>
-                <li>
-                    {{#dropboxPicker controller=controller }}
-                        <a class="pu-file-picker-button" data-browse-dropbox>
-                            <i class="picon-dropbox"></i><span>{{_ 'filepicker-dropbox' }}</span>
-                        </a>
-                    {{/dropboxPicker }}
-                </li>
-                <li>
-                    {{#drivePicker controller=controller }}
-                        <a class="pu-file-picker-button" data-browse-drive>
-                            <i class="picon-drive"></i><span>{{_ 'filepicker-googledrive' }}</span>
-                        </a>
-                    {{/drivePicker }}
-                </li>
-            </ul>
+                </span>
+                <div class=" browse-list-inline">
+                    <ul class="browse-list">
+                        <li>
+                            {{#devicePicker controller=controller }}
+                                <a class="browse-list-button" data-browse-device>
+                                    <i class="picon-upload"></i>
+                                    {{#if screenWidthEqualOrAbove '450' }}
+                                        <span>{{_ 'filepicker-device' }}</span>
+                                    {{/if }}
+                                </a>
+                            {{/devicePicker }}
+                        </li>
+                        <li>
+                            {{#dropboxPicker controller=controller }}
+                                <a class="browse-list-button" data-browse-dropbox>
+                                    <i class="picon-dropbox"></i>
+                                    {{#if screenWidthEqualOrAbove '450' }}
+                                        <span>{{_ 'filepicker-dropbox' }}</span>
+                                    {{/if }}
+                                </a>
+                            {{/dropboxPicker }}
+                        </li>
+                        <li>
+                            {{#drivePicker controller=controller }}
+                                <a class="browse-list-button" data-browse-drive>
+                                    <i class="picon-drive"></i>
+                                    {{#if screenWidthEqualOrAbove '450' }}
+                                        <span>
+                                            {{#if screenWidthEqualOrAbove '500'}}
+                                                {{_ 'filepicker-googledrive'}}
+                                            {{ else }}
+                                                {{_ 'filepicker-googledrive-short'}}
+                                            {{/if }}
+                                        </span>
+                                    {{/if }}
+                                </a>
+                            {{/drivePicker }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </section>
 </template>

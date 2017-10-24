@@ -1896,5 +1896,6 @@
   "filepicker-device": "apparaat",
   "filepicker-dropbox": "dropbox",
   "filepicker-googledrive": "google drive",
+  "filepicker-googledrive-short": "drive",
   "filepicker-placeholder": "Drag 'n drop een van de bijlagen<br />of gebruik een van de andere uploaders"
 }

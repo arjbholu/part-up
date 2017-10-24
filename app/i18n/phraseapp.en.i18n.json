@@ -1891,5 +1891,6 @@
   "filepicker-device": "device",
   "filepicker-dropbox": "dropbox",
   "filepicker-googledrive": "google drive",
+  "filepicker-googledrive-short": "drive",
   "filepicker-placeholder": "Drag 'n drop a file<br />or use one of the other uploaders"
 }
