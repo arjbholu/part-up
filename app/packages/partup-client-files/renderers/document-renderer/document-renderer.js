@@ -19,6 +19,6 @@ Template.documentRenderer.helpers({
         return Partup.helpers.files.getSvgIcon(file);
     },
     bytesToSize(bytes) {
-        // return FileUploader.bytesToSize(bytes);
+        return Partup.helpers.files.binaryToShortSize(bytes);
     },
 });

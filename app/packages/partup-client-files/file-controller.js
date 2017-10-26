@@ -155,7 +155,7 @@ class _FileController {
     
                 let col = collection;
                 if (!collection) {
-                    const foundFile = _.find(this.files.get(), ({ _id }) => _id === fileId) || _.find(this.removedFromCache.get(), ({ _id }) => _id === fileId);
+                    const foundFile = _.find(_.concat(this.files.get(), this.removedFromCache.get()), ({ _id }) => _id === fileId);
                     if (foundFile) {
                         col = Partup.helpers.files.isImage(foundFile) ? 'images' : 'files';
                     } else {
@@ -253,11 +253,9 @@ class _FileController {
      * @memberof _FileController
      */
     removeAllFilesBesides(fileIds = []) {
-        const filesToRemove = _.concat(
-            _.filter(this.files.get(), file => !_.includes(fileIds, file._id)),
-            _.filter(this.removedFromCache.get(), file => !_.includes(fileIds, file._id)),
-        );
-        
+        const filesToRemove =
+            _.filter(_.concat(this.files.get(), this.removedFromCache.get()), file => !_.includes(fileIds, file._id));
+
         _.each(filesToRemove, (file) => {
             this.removeFileFromCollection(file._id)
                 .then(id => this.removeFilesFromCache(id))

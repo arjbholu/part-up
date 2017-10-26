@@ -4,7 +4,6 @@ Template.DocumentRenderer.helpers({
     getSvgIcon: FileUploader.getSvgIcon,
     bytesToSize: FileUploader.bytesToSize,
     previewLink: function(file) {
-        console.log(file);
         if (file.isPartupFile) {
             return Partup.helpers.url.getFileUrl(file);
         }

@@ -171,7 +171,7 @@ Partup.helpers.files = {
      * @returns {Number} binary value of size
      */
     shortToBinarySize(size) {
-        if (!size === typeof 'string') {
+        if (!(typeof size === 'string')) {
             throw new Meteor.Error(0, `expected size to be of type string but is ${typeof size}`);
         }
 
@@ -189,10 +189,29 @@ Partup.helpers.files = {
                 case 't':
                     return match[1] * 1024 * 1024 * 1024 * 1024;
                 default:
-                    return;
+                    break;
             }
         }
-    }
+
+        return 0;
+    },
+
+    binaryToShortSize(size) {
+        if (!(typeof size === 'number')) {
+            throw new Error(`binaryToShortSize: size is not a number ${size}`);
+        } else if (size === 0) {
+            return size;
+        }
+
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const index = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+
+        if (index === 0) {
+            return `${bytes} ${sizes[index]}`;
+        }
+
+        return `${(bytes / Math.pow(1024, index)).toFixed(1)} ${sizes[index]}`;
+    },
 
     // #endregion
 };

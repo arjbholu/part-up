@@ -41,42 +41,13 @@ Files.getForUpdate = function (updateId) {
     });
 };
 
-Files.dropboxToPartupFile = (dropboxFile) => {
-    let file = {
-        _id: Random.id(),
-        name: dropboxFile.name,
-        type: Partup.helpers.files.info[Partup.helpers.files.getExtension(dropboxFile)].mime,
-        bytes: dropboxFile.bytes,
-        service: 'dropbox',
-    };
-    if (Partup.helpers.files.isImage(file)) {
-        file = Object.assign(file, {
-            link: `${dropboxFile.link.slice(0, -1)}1`,
-        });
-    } else {
-        file = Object.assign(file, {
-            link: dropboxFile.link,
-        });
-    }
-    return file;
-};
-
-Files.driveToPartupFile = (driveFile) => {
-    let file = {
-        _id: Random.id(),
-        name: driveFile.name,
-        type: driveFile.mimeType,
-        bytes: (!isNaN(driveFile.sizeBytes)) ? parseInt(driveFile.sizeBytes) : 0,
-        service: 'googledrive',
-    };
-    if (Partup.helpers.files.isImage(file)) {
-        file = Object.assign(file, {
-            link: `https://docs.google.com/uc?id=${driveFile.id}`,
-        });
-    } else {
-        file = Object.assign(file, {
-            link: driveFile.url.toString(),
-        });
-    }
-    return file;
+Files.many = function(ids) {
+    return new Promise((resolve, reject) => {
+        if (ids) {
+            const files = Files.find({ _id: { $in: ids } });
+            resolve(files);
+        } else {
+            reject();
+        }
+    });
 };

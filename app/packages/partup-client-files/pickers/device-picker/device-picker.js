@@ -18,26 +18,10 @@ Template.devicePicker.onRendered(function() {
         types: template.controller.categories,
         hooks: {
             FilesAdded(uploader, files) {
-                let imagesRemaining = template.controller.imagesRemaining.get();
-                let documentsRemaining = template.controller.documentsRemaining.get();
-
-                _.each(files, (file) => {
-                    if (Partup.helpers.files.isImage(file)) {
-                        if (!imagesRemaining) {
-                            Partup.client.notify.info(TAPi18n.__('upload-info-limit-reached', { filename: file.name }));
-                            uploader.removeFile(file);
-                        } else {
-                            --imagesRemaining;
-                        }
-                    } else {
-                        if (!documentsRemaining) {
-                            Partup.client.notify.info(TAPi18n.__('upload-info-limit-reached', { filename: file.name }));
-                            uploader.removeFile(file);
-                        } else {
-                            --documentsRemaining;
-                        }
-                    }
-                });
+                if (template.controller.canAdd(files, (removedFile) => {
+                    Partup.client.notify.info(TAPi18n.__('upload-info-limit-reached', { filename: removedFile.name }));
+                    uploader.removeFile(removedFile);
+                }));
                 if (uploader.files.length > 0) {
                     template.controller.uploading.set(true);
                     uploader.start();

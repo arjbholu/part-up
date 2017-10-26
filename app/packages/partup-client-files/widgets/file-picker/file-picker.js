@@ -27,32 +27,34 @@ Template.filePicker.onRendered(function() {
 
     (() => {
         const $dropEl = $(this.find('[data-drop-area]'));
-        const activeClass = 'drop-area-active';
+        Partup.client.html.droppable.call($dropEl, 'drop-area-active');
 
-        let ignoreLeave = false;
+        // const activeClass = 'drop-area-active';
 
-        $dropEl.on('dragenter', function(event) {
-            if (event.target !== this) {
-                ignoreLeave = true;
-            }
-            $(this).addClass(activeClass);
-        }).on('dragleave', function(event) {
-            if (ignoreLeave) {
-                ignoreLeave = false;
-                return;
-            }
-            $(this).removeClass(activeClass);
-        }).on('dragend', function(event) {
-            $dropEl.removeClass(activeClass);
-        }).on('drop', function(event) {
-            $dropEl.removeClass(activeClass);
-        });
+        // let ignoreLeave = false;
 
-        _.each($dropEl.children, child => {
-            $(child).on('dragleave', function(event) {
-                event.stopPropagation();
-            });
-        });
+        // $dropEl.on('dragenter', function(event) {
+        //     if (event.target !== this) {
+        //         ignoreLeave = true;
+        //     }
+        //     $(this).addClass(activeClass);
+        // }).on('dragleave', function(event) {
+        //     if (ignoreLeave) {
+        //         ignoreLeave = false;
+        //         return;
+        //     }
+        //     $(this).removeClass(activeClass);
+        // }).on('dragend', function(event) {
+        //     $dropEl.removeClass(activeClass);
+        // }).on('drop', function(event) {
+        //     $dropEl.removeClass(activeClass);
+        // });
+
+        // _.each($dropEl.children, child => {
+        //     $(child).on('dragleave', function(event) {
+        //         event.stopPropagation();
+        //     });
+        // });
     })();
 });
 
